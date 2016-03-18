@@ -3,6 +3,7 @@ package com.jaspersoft.jasperserver.dsa.common;
 import com.jaspersoft.jasperserver.jaxrs.client.core.JasperserverRestClient;
 import com.jaspersoft.jasperserver.jaxrs.client.core.RestClientConfiguration;
 import com.jaspersoft.jasperserver.jaxrs.client.core.Session;
+import com.sun.istack.internal.logging.Logger;
 import java.util.Properties;
 
 /**
@@ -14,20 +15,15 @@ import java.util.Properties;
  * @see
  */
 public class AppConfiguration {
-
+    private static final Logger appLogger = Logger.getLogger(AppConfiguration.class);
     private RestClientConfiguration restClientConfiguration;
     protected String baseRepositoryFolder;
-
-
     protected String uri;
     protected String username;
     protected String password;
     protected JasperserverRestClient client;
     protected Session session;
     protected Properties properties;
-
-    public AppConfiguration() {
-    }
 
     public AppConfiguration(Properties properties) {
         this.properties = properties;
@@ -64,8 +60,19 @@ public class AppConfiguration {
     }
 
     protected void initSession(String username, String password) {
+        appLogger.info("Authentication on JasperReportsServer");
         session = client.authenticate(username, password);
+        if (session == null){
+            appLogger.warning("Authentication failed");
+            System.exit(0);
+        }
+        appLogger.info("Authentication successful");
 
+    }
+
+    public Session getSession() {
+        if (session == null) this.initSession();
+        return session;
     }
 
     public String getUsername() {

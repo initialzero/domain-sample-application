@@ -1,4 +1,4 @@
-package com.jaspersoft.jasperserver.dsa.initialization;
+package com.jaspersoft.jasperserver.dsa.initialization.app;
 
 import java.util.Properties;
 

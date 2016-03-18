@@ -2,10 +2,11 @@ package com.jaspersoft.jasperserver.dsa;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dsa.common.ConsoleUtil;
-import com.jaspersoft.jasperserver.dsa.initialization.FileInitializationStrategy;
-import com.jaspersoft.jasperserver.dsa.initialization.InitHelper;
-import com.jaspersoft.jasperserver.dsa.initialization.InitializationStrategy;
-import com.jaspersoft.jasperserver.dsa.initialization.ManualInitializationStrategy;
+import com.jaspersoft.jasperserver.dsa.domain.DomainUtil;
+import com.jaspersoft.jasperserver.dsa.initialization.app.InitAppHelper;
+import com.jaspersoft.jasperserver.dsa.initialization.app.InitializationStrategy;
+import com.jaspersoft.jasperserver.dsa.initialization.app.InitializationStrategyFactory;
+import org.apache.log4j.Logger;
 
 /**
  * <p/>
@@ -16,20 +17,31 @@ import com.jaspersoft.jasperserver.dsa.initialization.ManualInitializationStrate
  * @see
  */
 public class Application {
+    private static Logger appLogger = Logger.getLogger(Application.class);
+    private static Logger consoleLogger = Logger.getLogger("consoleLogger");
+
     public static void main(String[] args) {
-        System.out.println("Choose way of configuration (file or manual) [f/m]:");
+        appLogger.info("Initialization of application");
 
-        Character in = ConsoleUtil.readChar();
+        // init application
+        consoleLogger.info("Choose way of configuration (file or manual) [f/m]:");
+        InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar());
 
-        InitializationStrategy strategy = null;
-        switch (in) {
-            case 'f': strategy = new FileInitializationStrategy(); break;
-            case 'm': strategy = new ManualInitializationStrategy();break;
-            default: break;
+        // config application
+        AppConfiguration configuration = InitAppHelper.initConfiguration(strategy.initConfiguration());
+        configuration.initClient();
+        configuration.initSession();
+
+        // Create test resources
+        DomainUtil domainUtil = new DomainUtil(configuration);
+        domainUtil.createBaseFolder();
+        //create domain with single data island
+        domainUtil.createDomain();
+
+        consoleLogger.info("Delete demonstration resources?[y/n]:");
+        if (ConsoleUtil.readChar() == 'y') {
+            domainUtil.deleteBaseFolder();
         }
-
-        AppConfiguration configuration = InitHelper.initConfiguration(strategy.initConfiguration());
-
     }
 
 }

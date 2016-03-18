@@ -1,4 +1,4 @@
-package com.jaspersoft.jasperserver.dsa.initialization;
+package com.jaspersoft.jasperserver.dsa.initialization.app;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.util.Properties;
@@ -11,7 +11,7 @@ import java.util.Properties;
  * @version $Id$
  * @see
  */
-public class InitHelper {
+public class InitAppHelper {
 
     public static AppConfiguration initConfiguration(Properties properties) {
         AppConfiguration configuration = new AppConfiguration(properties);
