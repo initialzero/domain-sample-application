@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 public class InitDataHelper {
 
     private static final Logger appLogger = Logger.getLogger(InitDataHelper.class);
+    private static ClientDomain clientDomain;
 
     public static final String JAVA_LANG_STRING = "java.lang.String";
     public static final String JAVA_LANG_INTEGER = "java.lang.Integer";
@@ -41,13 +42,17 @@ public class InitDataHelper {
 
 
     public static ClientDomain fetchDomain(String baseFolder, String domainName, String dataSourceUri) {
+        if (clientDomain != null) {
+            return clientDomain;
+        }
         appLogger.info("Start to create domain");
-        ClientDomain domain = new ClientDomain().
+        clientDomain = new ClientDomain().
                 setUri(baseFolder + "/" + domainName).
                 setLabel(domainName).
                 setDataSource(new ClientReference().setUri(dataSourceUri)).
                 setSchema(fetchSchema());
-        return domain;
+
+        return clientDomain;
     }
 
     private static Schema fetchSchema() {

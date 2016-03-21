@@ -28,12 +28,6 @@ public class FileInitializationStrategy implements InitializationStrategy {
             properties.load(this.getClass().getClassLoader().getResourceAsStream(readLine));
         } catch (IOException e) {
             appLogger.error("Error reading of file name from console", e);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         return properties;
     }

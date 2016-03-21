@@ -18,12 +18,19 @@ import org.apache.log4j.Logger;
  */
 public class DomainUtil {
     private static final Logger appLogger = Logger.getLogger(DomainUtil.class);
+
+    private ClientDomain clientDomain;
+
+    private final DomainManipulator domainManipulator = new DomainManipulator();
     private InitDataHelper initDataHelper = new InitDataHelper();
     private AppConfiguration configuration;
-
-
     public DomainUtil(AppConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+
+    public ClientDomain getClientDomain() {
+        return clientDomain;
     }
 
     public void createBaseFolder() {
@@ -67,20 +74,57 @@ public class DomainUtil {
 
     public void createDomain() {
         appLogger.info("Start to create domain with single data island.");
+
+        clientDomain = InitDataHelper.fetchDomain(configuration.getBaseRepositoryFolder(),
+                "New_domain",
+                "/public/Samples/Data_Sources/FoodmartDataSourceJNDI");
         OperationResult<ClientDomain> operationResult = configuration.getSession()
                 .domainService()
                 .domain(configuration.getBaseRepositoryFolder())
-                .create(InitDataHelper.fetchDomain(configuration.getBaseRepositoryFolder(),
-                        "New_domain",
-                        "/public/Samples/Data_Sources/FoodmartDataSourceJNDI"));
+                .create(clientDomain);
         int status = operationResult.getResponse().getStatus();
         if (status >= 400) {
             appLogger.warn("Error of creating domain. Error code: " + status);
             System.exit(0);
         }
+        updateDomainInstance(operationResult.getEntity());
+
         appLogger.info( operationResult.getEntity().getLabel() + " was created successful");
         appLogger.info("Domain was created successful");
     }
 
+    public void addCalculatedFields() {
+        appLogger.info("Add calculated fields to domain");
+        updateDomain(domainManipulator.addCalculatedFields(clientDomain));
+    }
+
+    public void addFilters() {
+        appLogger.info("Add filters to domain");
+        updateDomain(domainManipulator.addFilters(clientDomain));
+    }
+
+
+    private void updateDomain(ClientDomain domain) {
+        appLogger.info("Start to update domain");
+        OperationResult<ClientDomain> operationResult = configuration.getSession()
+                .domainService()
+                .domain(configuration.getBaseRepositoryFolder() + "/" + domain.getLabel())
+                .update(domain);
+        int status = operationResult.getResponse().getStatus();
+        if (status >= 400) {
+            appLogger.warn("Error of updating domain. Error code: " + status);
+            System.exit(0);
+        }
+        updateDomainInstance(operationResult.getEntity());
+        appLogger.info( operationResult.getEntity().getLabel() + " was updated successful");
+        appLogger.info("Domain was updated successful");
+    }
+
+    private void updateDomainInstance(ClientDomain domain) {
+        clientDomain.setVersion(domain.getVersion());
+        clientDomain.setPermissionMask(domain.getPermissionMask());
+        clientDomain.setCreationDate(domain.getCreationDate());
+        clientDomain.setUpdateDate(domain.getUpdateDate());
+    }
 
 }

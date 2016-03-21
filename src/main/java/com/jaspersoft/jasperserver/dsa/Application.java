@@ -37,11 +37,16 @@ public class Application {
         domainUtil.createBaseFolder();
         //create domain with single data island
         domainUtil.createDomain();
+        domainUtil.addCalculatedFields();
+        domainUtil.addFilters();
 
         consoleLogger.info("Delete demonstration resources?[y/n]:");
         if (ConsoleUtil.readChar() == 'y') {
             domainUtil.deleteBaseFolder();
         }
+
+        configuration.closeSession();;
+
     }
 
 }
