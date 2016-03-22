@@ -96,6 +96,7 @@ public class DomainUtil {
     public void addCalculatedFields() {
         appLogger.info("Add calculated fields to domain");
         updateDomain(domainManipulator.addCalculatedFields(clientDomain));
+
     }
 
     public void addFilters() {
@@ -103,6 +104,11 @@ public class DomainUtil {
         updateDomain(domainManipulator.addFilters(clientDomain));
     }
 
+
+    public void addDerivedTable() {
+        appLogger.info("Add derived to domain");
+        updateDomain(domainManipulator.addDerivedTable(clientDomain));
+    }
 
     private void updateDomain(ClientDomain domain) {
         appLogger.info("Start to update domain");
@@ -126,5 +132,4 @@ public class DomainUtil {
         clientDomain.setCreationDate(domain.getCreationDate());
         clientDomain.setUpdateDate(domain.getUpdateDate());
     }
-
 }

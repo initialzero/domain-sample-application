@@ -39,6 +39,7 @@ public class Application {
         domainUtil.createDomain();
         domainUtil.addCalculatedFields();
         domainUtil.addFilters();
+        domainUtil.addDerivedTable();
 
         consoleLogger.info("Delete demonstration resources?[y/n]:");
         if (ConsoleUtil.readChar() == 'y') {
