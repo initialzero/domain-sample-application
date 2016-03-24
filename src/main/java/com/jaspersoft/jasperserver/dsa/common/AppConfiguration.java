@@ -69,7 +69,7 @@ public class AppConfiguration {
         appLogger.info("Authentication successful");
 
     }
-    public void closeSession() {
+    public void stopApplication() {
         appLogger.info("Log out on JasperReportsServer");
         session.logout();
         appLogger.info("Logout successful");

@@ -15,6 +15,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.ResourceSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Schema;
 import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -29,7 +30,15 @@ import org.apache.log4j.Logger;
 public class InitDataHelper {
 
     private static final Logger appLogger = Logger.getLogger(InitDataHelper.class);
-    private static ClientDomain clientDomain;
+
+    public static final String DATA_SOURCE = "FoodmartDataSourceJNDI";
+    public static final String DATA_SOURCE_SCHEMA = "public";
+    public static final String DATA_SOURCE_SCHEMA_ALIAS = "schema1";
+    public static final String FULL_TABLE_NAME_0 = "public_agg_ll_01_sales_fact_1997";
+    public static final String FULL_TABLE_NAME_1 = "public_customer";
+    public static final String FULL_TABLE_NAME_2 = "public_product";
+
+    public static final String JOIN_TREE_1 = "JoinTree_1";
 
     public static final String JAVA_LANG_STRING = "java.lang.String";
     public static final String JAVA_LANG_INTEGER = "java.lang.Integer";
@@ -39,6 +48,15 @@ public class InitDataHelper {
     public static final String JAVA_LANG_SHORT = "java.lang.Short";
     public static final String JAVA_LANG_DOUBLE = "java.lang.Double";
     public static final String JAVA_LANG_BOOLEAN = "java.lang.Boolean";
+    public static final String TABLE_NAME_0 = "agg_ll_01_sales_fact_1997";
+    public static final String TABLE_NAME_1 = "customer";
+    public static final String TABLE_NAME_2 = "product";
+
+
+    private static ClientDomain clientDomain;
+    private static ResourceGroupElement table0;
+    private static ResourceGroupElement table1;
+    private static ResourceGroupElement table2;
 
 
     public static ClientDomain fetchDomain(String baseFolder, String domainName, String dataSourceUri) {
@@ -71,13 +89,16 @@ public class InitDataHelper {
         // init tables
         List<SchemaElement> tables = new ArrayList<SchemaElement>();
         appLogger.info("Add tables to schema");
-        tables.add(fetchTable("public", "public_agg_ll_01_sales_fact_1997", "FoodmartDataSourceJNDI"));
-        tables.add(fetchTable("public", "public_customer", "FoodmartDataSourceJNDI"));
-        tables.add(fetchTable("public", "public_product", "FoodmartDataSourceJNDI"));
+        table0 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_0, DATA_SOURCE);
+        table1 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_1, DATA_SOURCE);
+        table2 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_2, DATA_SOURCE);
+        tables.add(table0);
+        tables.add(table1);
+        tables.add(table2);
 // init schemas
         ResourceGroupElement publicSchema = new ResourceGroupElement().
-                setName("schema1").
-                setSourceName("public").
+                setName(DATA_SOURCE_SCHEMA_ALIAS).
+                setSourceName(DATA_SOURCE_SCHEMA).
                 setElements(tables);
         List<SchemaElement> schemas = new ArrayList<SchemaElement>();
         schemas.add(publicSchema);
@@ -85,38 +106,43 @@ public class InitDataHelper {
         appLogger.info("Add schema to datasource");
         //init data source
         ResourceGroupElement dataSource = new ResourceGroupElement().
-                setName("FoodmartDataSourceJNDI").
+                setName(DATA_SOURCE).
                 setElements(schemas);
         List<ResourceElement> resources = new ArrayList<ResourceElement>();
         appLogger.info("Add datasource to resources");
         resources.add(dataSource);
 
-// add resources to schema
         appLogger.info("Join resources");
         List<Join> joins = new ArrayList<Join>();
 
-
+// init joins
         joins.add(new Join().
-                setLeft("public_agg_ll_01_sales_fact_1997").
-                setRight("public_customer").
+                setLeft(FULL_TABLE_NAME_0).
+                setRight(FULL_TABLE_NAME_1).
                 setExpression("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id").
                 setWeight(1)
                 .setType(Join.JoinType.inner));
         joins.add(new Join().
-                setLeft("public_agg_ll_01_sales_fact_1997").
-                setRight("public_product").
+                setLeft(FULL_TABLE_NAME_0).
+                setRight(FULL_TABLE_NAME_2).
                 setExpression("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id").
                 setWeight(1).setType(Join.JoinType.inner));
         JoinInfo joinInfo = new JoinInfo().setIncludeAllDataIslandJoins(false).setSuppressCircularJoins(false).setJoins(joins);
 
         List<SchemaElement> joinResourceElements = new ArrayList<SchemaElement>();
-        joinResourceElements.add(new ReferenceElement().setName("public_product").setReferencePath("FoodmartDataSourceJNDI.schema1.public_product"));
-        joinResourceElements.add(new ReferenceElement().setName("public_customer").setReferencePath("FoodmartDataSourceJNDI.schema1.public_customer"));
-        joinResourceElements.add(new ReferenceElement().setName("public_agg_ll_01_sales_fact_1997").setReferencePath("FoodmartDataSourceJNDI.schema1.public_agg_ll_01_sales_fact_1997"));
+        joinResourceElements.add(new ReferenceElement().
+                setName(FULL_TABLE_NAME_2).
+                setReferencePath("FoodmartDataSourceJNDI.schema1.public_product"));
+        joinResourceElements.add(new ReferenceElement().
+                setName(FULL_TABLE_NAME_1).
+                setReferencePath("FoodmartDataSourceJNDI.schema1.public_customer"));
+        joinResourceElements.add(new ReferenceElement().
+                setName(FULL_TABLE_NAME_0).
+                setReferencePath("FoodmartDataSourceJNDI.schema1.public_agg_ll_01_sales_fact_1997"));
 
         appLogger.info("Add joins to join group");
         JoinResourceGroupElement joinResourceGroupElement = new JoinResourceGroupElement().
-                setName("JoinTree_1").
+                setName(JOIN_TREE_1).
                 setJoinInfo(joinInfo).
                 setElements(joinResourceElements);
         appLogger.info("add joinGroup to schema");
@@ -130,515 +156,30 @@ public class InitDataHelper {
     private static List<PresentationElement> initPresentations() {
         appLogger.info("Start to add presentations to domain");
 
-        List<PresentationElement> presentationElements1 = new ArrayList<PresentationElement>();
-        String name = "customer_id";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.customer_id").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "fact_count";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.fact_count").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "product_id";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.product_id").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "store_cost";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.store_cost").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_MATH_BIG_DECIMAL));
-        name = "store_sales";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.store_sales").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_MATH_BIG_DECIMAL));
-        name = "time_id";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.time_id").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "unit_sales";
-        presentationElements1.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.unit_sales").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_MATH_BIG_DECIMAL));
-        PresentationGroupElement presentationGroupElement1 = new PresentationGroupElement().
-                setName("public_agg_ll_01_sales_fact_1997").
-                setResourcePath("JoinTree_1").
-                setDescription("public_agg_ll_01_sales_fact_1997").
-                setDescriptionId("").
-                setLabel("public_agg_ll_01_sales_fact_1997").
-                setLabelId("").
-                setElements(presentationElements1);
+        PresentationGroupElement presentationGroupElement0 = resourceToPresentationGroupElement(table0);
 
-        List<PresentationElement> presentationElements2 = new ArrayList<PresentationElement>();
-        name = "account_num";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_LONG));
-        name = "address1";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "address2";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "address3";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "address4";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "birthdate";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_UTIL_DATE));
-        name = "city";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "country";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "customer_id1";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer.customer_id").
-                setDescriptionId("").
-                setDescription("customer_id1").
-                setLabel("customer_id").
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "customer_region_id";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "date_accnt_opened";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_UTIL_DATE));
-        name = "education";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "fname";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "fullname";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "gender";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "houseowner";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "lname";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "marital_status";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "member_card";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "mi";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "num_cars_owned";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "num_children_at_home";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_SHORT));
-        name = "occupation";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "phone1";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "phone2";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "postal_code";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "state_province";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "total_children";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_SHORT));
-        name = "yearly_income";
-        presentationElements2.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_customer." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        PresentationGroupElement presentationGroupElement2 = new PresentationGroupElement().
-                setName("public_customer").
-                setResourcePath("JoinTree_1").
-                setDescription("public_customer").
-                setDescriptionId("").
-                setLabel("public_customer").
-                setLabelId("").
-                setElements(presentationElements2);
+        PresentationGroupElement presentationGroupElement1 = resourceToPresentationGroupElement(table1);
 
-        List<PresentationElement> presentationElements3 = new ArrayList<PresentationElement>();
-        name = "brand_name";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "cases_per_pallet";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_SHORT));
-        name = "gross_weight";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_DOUBLE));
-        name = "low_fat";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_BOOLEAN));
-        name = "net_weight";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_DOUBLE));
-        name = "product_class_id";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "product_id1";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product.product_id").
-                setDescriptionId("").
-                setDescription(name).
-                setLabel("product_id").
-                setLabelId("").
-                setType(JAVA_LANG_INTEGER));
-        name = "product_name";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_STRING));
-        name = "recyclable_package";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_BOOLEAN));
-        name = "shelf_depth";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_DOUBLE));
-        name = "shelf_height";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_DOUBLE));
-        name = "shelf_width";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_DOUBLE));
-        name = "sku";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_LONG));
-        name = "srp";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_MATH_BIG_DECIMAL));
-        name = "units_per_case";
-        presentationElements3.add(new PresentationSingleElement().
-                setName(name).
-                setResourcePath("JoinTree_1.public_product." + name).
-                setDescriptionId("").
-                setDescription(name).
-                setLabel(name).
-                setLabelId("").
-                setType(JAVA_LANG_SHORT));
-        PresentationGroupElement presentationGroupElement3 = new PresentationGroupElement().
-                setName("public_product").
-                setResourcePath("JoinTree_1").
-                setDescription("public_product").
-                setDescriptionId("").
-                setLabel("public_product").
-                setLabelId("").
-                setElements(presentationElements3);
+        PresentationGroupElement presentationGroupElement2 = resourceToPresentationGroupElement(table2);
 
         List<PresentationElement> presentationElements = new ArrayList<PresentationElement>();
+        presentationElements.add(presentationGroupElement0);
         presentationElements.add(presentationGroupElement1);
         presentationElements.add(presentationGroupElement2);
-        presentationElements.add(presentationGroupElement3);
         appLogger.info("Adding  presentations  to domain finished successfully");
         return presentationElements;
     }
 
 
-    private static ResourceGroupElement fetchTable(String schema, String tableNAme, String daraSource) {
-        String tableName0 = "public_agg_ll_01_sales_fact_1997";
-        String tableName1 = "public_customer";
-        String tableName2 = "public_product";
+    private static ResourceGroupElement fetchTable(String dataSourceSchema, String tableName, String daraSource) {
+        String fullTableName = dataSourceSchema + "_" + tableName;
 
         ResourceGroupElement resourceGroupElement = new ResourceGroupElement();
 
-        if (tableNAme.equals(tableName0)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_0)) {
             resourceGroupElement.
-                    setName(tableName0).
-                    setSourceName("agg_ll_01_sales_fact_1997").
+                    setName(FULL_TABLE_NAME_0).
+                    setSourceName(TABLE_NAME_0).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("customer_id").setType(JAVA_LANG_INTEGER));
@@ -654,14 +195,14 @@ public class InitDataHelper {
                     setName("time_id").setType(JAVA_LANG_INTEGER));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("unit_sales").setType(JAVA_MATH_BIG_DECIMAL));
-            appLogger.info("Table " + tableName0 + " fetched successfully");
+            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
 
-        if (tableNAme.equals(tableName1)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_1)) {
             resourceGroupElement.
-                    setName(tableName1).
-                    setSourceName("customer").
+                    setName(FULL_TABLE_NAME_1).
+                    setSourceName(TABLE_NAME_1).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("account_num").setType(JAVA_LANG_LONG));
@@ -721,13 +262,13 @@ public class InitDataHelper {
                     setName("total_children").setType(JAVA_LANG_SHORT));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("yearly_income").setType(JAVA_LANG_STRING));
-            appLogger.info("Table " + tableName0 + " fetched successfully");
+            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
-        if (tableNAme.equals(tableName2)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_2)) {
             resourceGroupElement.
-                    setName(tableName2).
-                    setSourceName("product").
+                    setName(FULL_TABLE_NAME_2).
+                    setSourceName(TABLE_NAME_2).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("brand_name").setType(JAVA_LANG_STRING));
@@ -759,11 +300,48 @@ public class InitDataHelper {
                     setName("srp").setType(JAVA_MATH_BIG_DECIMAL));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("units_per_case").setType(JAVA_LANG_SHORT));
-            appLogger.info("Table " + tableName0 + " fetched successfully");
+            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
         return null;
     }
 
+    public static PresentationGroupElement resourceToPresentationGroupElement(ResourceGroupElement resourceElement) {
+        List<PresentationElement> presentationElements = new LinkedList<PresentationElement>();
+
+        for (SchemaElement element : resourceElement.getElements()) {
+            ResourceSingleElement castedElement = (ResourceSingleElement) element;
+            PresentationSingleElement presentationSingleElement = new PresentationSingleElement().
+                    setName(castedElement.getName()).
+                    setResourcePath(getPath(JOIN_TREE_1, resourceElement.getName(), castedElement.getName())).
+                    setDescription(castedElement.getName()).
+                    setDescriptionId("").
+                    setLabel(castedElement.getName()).
+                    setLabelId("").
+                    setType(castedElement.getType());
+            presentationElements.add(presentationSingleElement);
+
+            if ((resourceElement.getName().equals(table1.getName()) && castedElement.getName().equals("customer_id")) ||
+                    (resourceElement.getName().equals(table2.getName()) && castedElement.getName().equals("product_id"))) {
+                String newName = castedElement.getName() + "1";
+                presentationSingleElement.setName(newName).setDescription(newName);
+            }
+        }
+        PresentationGroupElement presentationGroupElement = new PresentationGroupElement();
+        presentationGroupElement.
+                setName(resourceElement.getName()).
+                setResourcePath(JOIN_TREE_1).
+                setDescription(resourceElement.getName()).
+                setDescriptionId("").
+                setLabel(resourceElement.getName()).
+                setLabelId("").
+                setElements(presentationElements);
+        return presentationGroupElement;
+    }
+
+    private static String getPath(String source, String schema, String element) {
+        Character point = new Character('.');
+        return new StringBuilder().append(source).append(point).append(schema).append(point).append(element).toString();
+    }
 
 }

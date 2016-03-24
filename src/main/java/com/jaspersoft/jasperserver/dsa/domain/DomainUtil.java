@@ -22,15 +22,9 @@ public class DomainUtil {
     private ClientDomain clientDomain;
 
     private final DomainManipulator domainManipulator = new DomainManipulator();
-    private InitDataHelper initDataHelper = new InitDataHelper();
     private AppConfiguration configuration;
     public DomainUtil(AppConfiguration configuration) {
         this.configuration = configuration;
-    }
-
-
-    public ClientDomain getClientDomain() {
-        return clientDomain;
     }
 
     public void createBaseFolder() {
@@ -108,6 +102,11 @@ public class DomainUtil {
     public void addDerivedTable() {
         appLogger.info("Add derived to domain");
         updateDomain(domainManipulator.addDerivedTable(clientDomain));
+    }
+
+    public void copyTable(String tableName) {
+        appLogger.info("Create copy of " + tableName + " table");
+        updateDomain(domainManipulator.createCopy(clientDomain, tableName));
     }
 
     private void updateDomain(ClientDomain domain) {

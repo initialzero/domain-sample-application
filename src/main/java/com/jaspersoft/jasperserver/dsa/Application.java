@@ -23,30 +23,31 @@ public class Application {
     public static void main(String[] args) {
         appLogger.info("Initialization of application");
 
-        // init application
+        // Initialization and configuration of application
         consoleLogger.info("Choose way of configuration (file or manual) [f/m]:");
         InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar());
+        AppConfiguration configuration = InitAppHelper.initApplication(strategy.initConfiguration());
 
-        // config application
-        AppConfiguration configuration = InitAppHelper.initConfiguration(strategy.initConfiguration());
-        configuration.initClient();
-        configuration.initSession();
-
-        // Create test resources
+        // Create demonstration resources
         DomainUtil domainUtil = new DomainUtil(configuration);
         domainUtil.createBaseFolder();
         //create domain with single data island
         domainUtil.createDomain();
+        // Add to domain calculated fields and add them to presentation
         domainUtil.addCalculatedFields();
+        // Add filters to calculated and normal fields
         domainUtil.addFilters();
+        // Add to domain derived tables
         domainUtil.addDerivedTable();
+        // Add to domain derived tables
+        domainUtil.copyTable("public_customer");
 
+        // Finish executing application
         consoleLogger.info("Delete demonstration resources?[y/n]:");
         if (ConsoleUtil.readChar() == 'y') {
             domainUtil.deleteBaseFolder();
         }
-
-        configuration.closeSession();;
+        configuration.stopApplication();
 
     }
 

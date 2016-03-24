@@ -13,8 +13,11 @@ import java.util.Properties;
  */
 public class InitAppHelper {
 
-    public static AppConfiguration initConfiguration(Properties properties) {
+    public static AppConfiguration initApplication(Properties properties) {
         AppConfiguration configuration = new AppConfiguration(properties);
+        configuration.initClient();
+        configuration.initSession();
         return configuration;
     }
+
 }
