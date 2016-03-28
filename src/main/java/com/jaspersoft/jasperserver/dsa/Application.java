@@ -30,20 +30,30 @@ public class Application {
 
         // Create demonstration resources
         domainSamplesUtil.createBaseFolder();
+
         //create domain with single data island
         domainSamplesUtil.createBaseDomain();
-        // Add to domain calculated fields and add them to presentation
+
+       // Add to domain calculated fields and add them to presentation
         domainSamplesUtil.addCalculatedFields();
+
         // Add filters to calculated and normal fields
         domainSamplesUtil.addFilters();
+
         // Add to domain derived tables
         domainSamplesUtil.addDerivedTable();
+
         // Add to domain derived tables
         domainSamplesUtil.copyTable("public_customer");
 
+        // addCrossTableCalculatedField()
         domainSamplesUtil.addCrossTableCalculatedField();
 
+        //addConstantCalculatedField(300)
         domainSamplesUtil.addConstantCalculatedField(300);
+
+        // addCrossTableFilter()
+        domainSamplesUtil.addCrossTableFilter();
 
         // Finish executing application
         consoleLogger.info("Delete demonstration resources?[y/n]:");

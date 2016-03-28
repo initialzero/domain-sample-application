@@ -68,7 +68,7 @@ public class DomainSamplesUtil {
     }
 
     public void deleteBaseFolder() {
-        appLogger.info("Clean demonstration resources on the server");
+        appLogger.info("Clean up demonstration resources on the server");
 
         OperationResult operationResult = session
                 .resourcesService()
@@ -85,14 +85,14 @@ public class DomainSamplesUtil {
     }
 
     public void createBaseDomain() {
-        appLogger.info("Start to create domain with single data island on the server.");
+        appLogger.info("Start to create domain with single data island on the server...");
         createDomainOnServer(InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain",
                 DATA_SOURCE_URI));
     }
 
     public void addCalculatedFields() {
-        appLogger.info("Add calculated fields to domain");
+        appLogger.info("Add calculated fields to base domain...");
         createDomainOnServer(schemaManipulator.addCalculatedFields(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_calculated_fields",
@@ -101,7 +101,7 @@ public class DomainSamplesUtil {
     }
 
     public void addCrossTableCalculatedField() {
-        appLogger.info("Add cross table calculated field to domain");
+        appLogger.info("Add cross table calculated field to base domain...");
         createDomainOnServer(schemaManipulator.addCrossTableCalculatedFields(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_cross_table_calculated_fields",
@@ -110,7 +110,7 @@ public class DomainSamplesUtil {
     }
 
     public void addFilters() {
-        appLogger.info("Add filters to domain");
+        appLogger.info("Add filters to particular tables in base domain...");
         createDomainOnServer(schemaManipulator.addFilters(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_filters",
@@ -119,7 +119,7 @@ public class DomainSamplesUtil {
 
 
     public void addDerivedTable() {
-        appLogger.info("Add derived to base domain");
+        appLogger.info("Add derived table to base domain...");
         createDomainOnServer(schemaManipulator.addDerivedTable(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_derived_table",
@@ -127,7 +127,7 @@ public class DomainSamplesUtil {
     }
 
     public void copyTable(String tableName) {
-        appLogger.info("Create copy of " + tableName + " table");
+        appLogger.info("Create copy of " + tableName + " table in base domain...");
         createDomainOnServer(schemaManipulator.createTableCopy(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_copy_of_table",
@@ -135,13 +135,17 @@ public class DomainSamplesUtil {
     }
 
     public void addConstantCalculatedField(int constantValue) {
-        appLogger.info("Add constant calculation field");
+        appLogger.info("Add constant calculation field to base domain...");
         createDomainOnServer(schemaManipulator.addConstantCalculatedField(InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_constant_calculated_field",
                 DATA_SOURCE_URI), constantValue));
     }
 
     public void addCrossTableFilter() {
+        appLogger.info("Add cross table filter to base domain...");
+        createDomainOnServer(schemaManipulator.addCrossTableFilter(InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_cross_table_filter",
+                DATA_SOURCE_URI)));
     }
 
     public void addTwoFieldsFilter() {

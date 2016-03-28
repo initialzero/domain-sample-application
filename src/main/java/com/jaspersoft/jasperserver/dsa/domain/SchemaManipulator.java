@@ -113,6 +113,7 @@ public class SchemaManipulator {
     public ClientDomain addConstantCalculatedField(ClientDomain domain, Integer value) {
 
         List<ResourceElement> resources = domain.getSchema().getResources();
+        // create constant elements group
         ConstantsResourceGroupElement constantsResourceGroupElement = new ConstantsResourceGroupElement().
                 setName("constant_fields_level");
 
@@ -126,7 +127,7 @@ public class SchemaManipulator {
         constantsResourceGroupElement.setElements(constantElements);
         resources.add(1, constantsResourceGroupElement);
 
-        // add constant calculated field to presentation
+        // add constant group to presentation
         List<PresentationGroupElement> presentations = domain.getSchema().getPresentation();
 
         List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
@@ -139,16 +140,7 @@ public class SchemaManipulator {
                 .setHierarchicalName("constant_fields_level.ConstantField")
                 .setResourcePath("constant_fields_level.ConstantField")
                 .setName(constantField));
-        /*
-        PresentationGroupElement constants = new PresentationGroupElement().
-                setName("constant_fields_level").
-                setDescription("constant_fields_level").
-                setLabel("Constants").
-                setElements(presentationSingleElements);
 
-        List<PresentationElement> constantsList = new LinkedList<PresentationElement>();
-        constantsList.add(constants);
-*/
         presentations.add(new PresentationGroupElement().
         setName("constant_fields_level").
         setElements(presentationSingleElements));
@@ -177,6 +169,14 @@ public class SchemaManipulator {
         }
 
         return clientDomain;
+    }
+
+    public ClientDomain  addCrossTableFilter(ClientDomain domain) {
+        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
+        // add cross table filter to join group
+        joinGroup.setFilterExpression("not contains(public_product.brand_name, public_customer.fname)");
+
+        return domain;
     }
 
     public ClientDomain addDerivedTable(ClientDomain clientDomain) {
