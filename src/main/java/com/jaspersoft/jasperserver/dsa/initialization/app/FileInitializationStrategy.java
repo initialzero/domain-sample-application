@@ -1,5 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.initialization.app;
 
+import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +19,7 @@ public class FileInitializationStrategy implements InitializationStrategy {
     private static final Logger appLogger = Logger.getLogger(FileInitializationStrategy.class);
     private static final Logger consoleLogger = Logger.getLogger("consoleLogger");
 
-    public Properties initConfiguration() {
+    public AppConfiguration initConfiguration() {
         Properties properties = new Properties();
         consoleLogger.info("Enter path to configuration file:");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -29,6 +30,6 @@ public class FileInitializationStrategy implements InitializationStrategy {
         } catch (IOException e) {
             appLogger.error("Error reading of file name from console", e);
         }
-        return properties;
+        return new AppConfiguration(properties);
     }
 }

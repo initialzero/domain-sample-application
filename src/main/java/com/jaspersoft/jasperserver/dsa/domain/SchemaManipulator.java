@@ -20,6 +20,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_0;
+import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_1;
+import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_2;
+
+
 /**
  * <p/>
  * <p/>
@@ -28,64 +33,98 @@ import java.util.Map;
  * @version $Id$
  * @see
  */
-public class DomainManipulator {
+public class SchemaManipulator {
 
     public ClientDomain addCalculatedFields(ClientDomain domain) {
+
         ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
+
+        // add calculated fields to particular tables in resources
+        String calcFieldNum = "CalcField_num";
+        String calcFieldString = "CalcField_string";
         for (SchemaElement resource : resources) {
-            if (resource.getName().equals("public_agg_ll_01_sales_fact_1997")) {
+            if (resource.getName().equals(FULL_TABLE_NAME_0)) {
                 ((ResourceGroupElement) resource).getElements().add(new ResourceSingleElement().
-                        setName("CalcField_num").
+                        setName(calcFieldNum).
                         setType(InitDataHelper.JAVA_MATH_BIG_DECIMAL).
                         setExpression("store_cost*10"));
-                sortResources(((ResourceGroupElement) resource).getElements());
             }
-            if (resource.getName().equals("public_customer")) {
+            if (resource.getName().equals(FULL_TABLE_NAME_1)) {
                 ((ResourceGroupElement) resource).getElements().add(new ResourceSingleElement().
-                        setName("CalcField_string").
+                        setName(calcFieldString).
                         setType(InitDataHelper.JAVA_LANG_STRING).
                         setExpression("concat(fname,' ',lname)"));
-                sortResources(((ResourceGroupElement) resource).getElements());
             }
 
         }
-
-        List<PresentationElement> presentations = domain.getSchema().getPresentation();
+        // add calculated fields to presentation
+        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
         presentations.add(new PresentationSingleElement().
                 setType(InitDataHelper.JAVA_MATH_BIG_DECIMAL)
-                .setLabel("CalcField_num")
+                .setLabel(calcFieldNum)
                 .setLabelId("")
-                .setDescription("CalcField_num")
+                .setDescription(calcFieldNum)
                 .setDescriptionId("")
+                .setHierarchicalName("public_agg_ll_01_sales_fact_1997.CalcField_num")
                 .setResourcePath("JoinTree_1.public_agg_ll_01_sales_fact_1997.CalcField_num")
-                .setName("CalcField_num"));
+                .setName(calcFieldNum));
         presentations.add(new PresentationSingleElement().
                 setType(InitDataHelper.JAVA_LANG_STRING)
-                .setLabel("CalcField_string")
+                .setLabel(calcFieldString)
                 .setLabelId("")
-                .setDescription("CalcField_string")
+                .setDescription(calcFieldString)
                 .setDescriptionId("")
+                .setHierarchicalName("public_customer.CalcField_string")
                 .setResourcePath("JoinTree_1.public_customer.CalcField_string")
-                .setName("CalcField_string"));
+                .setName(calcFieldString));
+
+        return domain;
+    }
+
+    public ClientDomain addCrossTableCalculatedFields(ClientDomain domain) {
+
+        JoinResourceGroupElement joins = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
+        List<SchemaElement> joinsElements = joins.getElements();
+
+        // add calculated fields to particular tables in joinsElements
+        String calcFieldNum = "CrossTableCalcField";
+        joinsElements.add(new ResourceSingleElement().
+                setName(calcFieldNum).
+                setType(InitDataHelper.JAVA_LANG_STRING).
+                setExpression("concat(public_customer.fullname,', ',public_product.brand_name)"));
+        // add calculated fields to presentation
+        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
+        presentations.add(new PresentationSingleElement().
+                setType(InitDataHelper.JAVA_LANG_STRING)
+                .setLabel(calcFieldNum)
+                .setLabelId("")
+                .setDescription(calcFieldNum)
+                .setDescriptionId("")
+                .setHierarchicalName(calcFieldNum)
+                .setResourcePath("JoinTree_1." + calcFieldNum)
+                .setName(calcFieldNum));
 
         return domain;
     }
 
     public ClientDomain addFilters(ClientDomain clientDomain) {
+
         ResourceGroupElement datasource = (ResourceGroupElement) clientDomain.getSchema().getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
+
+        // add filters to particular tables in resources
         for (SchemaElement resource : resources) {
             //uncomment this when calculated fields will be fixed
 //            if (resource.getName().equals("public_agg_ll_01_sales_fact_1997")) {
 //                ((ResourceGroupElement) resource).setFilterExpression("CalcField_num > 10");
 //            }
-            if (resource.getName().equals("public_customer")) {
+            if (resource.getName().equals(FULL_TABLE_NAME_1)) {
                 ((ResourceGroupElement) resource).setFilterExpression("country == 'USA'");
             }
-            if (resource.getName().equals("public_product")) {
+            if (resource.getName().equals(FULL_TABLE_NAME_2)) {
                 ((ResourceGroupElement) resource).setFilterExpression("low_fat == true and net_weight < 10.0");
             }
         }
@@ -94,6 +133,8 @@ public class DomainManipulator {
     }
 
     public ClientDomain addDerivedTable(ClientDomain clientDomain) {
+
+        // add  new query resource element to resources
         ResourceGroupElement datasource = (ResourceGroupElement) clientDomain.getSchema().getResources().get(0);
         List<SchemaElement> singleElements = new LinkedList<SchemaElement>();
         singleElements.add(new ResourceSingleElement().setName("customer_id").setType(InitDataHelper.JAVA_LANG_INTEGER));
@@ -105,6 +146,7 @@ public class DomainManipulator {
                 .setElements(singleElements)
                 .setQuery("select * from public.customer"));
 
+        // join new query resource with existing resources in data island
         JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) clientDomain.getSchema().getResources().get(1);
         List<SchemaElement> referenceElements = joinGroup.getElements();
         referenceElements.add(new ReferenceElement().setName("TestQueryCustomer").setReferencePath("FoodmartDataSourceJNDI.TestQueryCustomer"));
@@ -115,7 +157,8 @@ public class DomainManipulator {
                 setWeight(1).
                 setType(Join.JoinType.inner));
 
-        List<PresentationElement> presentations = clientDomain.getSchema().getPresentation();
+        // ann new query resource to presentation
+        List<PresentationElement> presentations = clientDomain.getSchema().getPresentation().get(0).getElements();
         List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
         presentationSingleElements.add(new PresentationSingleElement().
                 setName("customer_id2").
@@ -123,6 +166,7 @@ public class DomainManipulator {
                 setLabelId("").
                 setDescription("customer_id2").
                 setDescriptionId("").
+                setHierarchicalName("TestQueryCustomer.customer_id").
                 setResourcePath("JoinTree_1.TestQueryCustomer.customer_id").
                 setType(InitDataHelper.JAVA_LANG_INTEGER));
         presentationSingleElements.add(new PresentationSingleElement().
@@ -131,6 +175,7 @@ public class DomainManipulator {
                 setLabelId("").
                 setDescription("fname1").
                 setDescriptionId("").
+                setHierarchicalName("TestQueryCustomer.fname").
                 setResourcePath("JoinTree_1.TestQueryCustomer.fname").
                 setType(InitDataHelper.JAVA_LANG_STRING));
         presentationSingleElements.add(new PresentationSingleElement().
@@ -139,6 +184,7 @@ public class DomainManipulator {
                 setLabelId("").
                 setDescription("fullname1").
                 setDescriptionId("").
+                setHierarchicalName("TestQueryCustomer.fullname").
                 setResourcePath("JoinTree_1.TestQueryCustomer.fullname").
                 setType(InitDataHelper.JAVA_LANG_STRING));
         presentationSingleElements.add(new PresentationSingleElement().
@@ -147,6 +193,7 @@ public class DomainManipulator {
                 setLabelId("").
                 setDescription("lname1").
                 setDescriptionId("").
+                setHierarchicalName("TestQueryCustomer.lname").
                 setResourcePath("JoinTree_1.TestQueryCustomer.lname").
                 setType(InitDataHelper.JAVA_LANG_STRING));
         presentations.add(3, new PresentationGroupElement().
@@ -155,7 +202,6 @@ public class DomainManipulator {
                         .setLabelId("")
                         .setDescription("TestQueryCustomer")
                         .setDescriptionId("")
-                        .setResourcePath("JoinTree_1")
                         .setElements(presentationSingleElements)
         );
         return clientDomain;
@@ -170,6 +216,8 @@ public class DomainManipulator {
     }
 
     public ClientDomain createCopy(ClientDomain domain, String tableName) {
+
+        // Create copy of table in resources
         ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
@@ -183,6 +231,7 @@ public class DomainManipulator {
         copyElement.setName(tableName+1);
         resources.add(copyElement);
 
+        // Join copied table with existing table in data island
         JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
         List<SchemaElement> referenceElements = joinGroup.getElements();
         referenceElements.add(new ReferenceElement().setName(copyElement.getName()).setReferencePath("FoodmartDataSourceJNDI.schema1.public_customer1"));
@@ -193,8 +242,8 @@ public class DomainManipulator {
                 setWeight(1).
                 setType(Join.JoinType.inner));
 
-        List<PresentationElement> presentations = domain.getSchema().getPresentation();
-
+        // Add copied table to presentation
+        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
 
         Map<String,String> fieldsNames = new LinkedHashMap<String, String>();
         fieldsNames.put("account_num", "account_num1");
@@ -229,7 +278,6 @@ public class DomainManipulator {
         fieldsNames.put("yearly_income", "yearly_income1");
 
         List<PresentationElement> presentationElements = new ArrayList<PresentationElement>();
-        String joinNameTableName = "JoinTree_1.public_customer1.";
         String elementName;
         String elementLabel;
         for (SchemaElement resourceElement : copyElement.getElements()) {
@@ -242,19 +290,19 @@ public class DomainManipulator {
                     setLabelId("").
                     setDescription(elementName).
                     setDescriptionId("").
-                    setResourcePath(joinNameTableName + elementLabel).
+                    setHierarchicalName(copyElement.getName() + elementLabel).
+                    setResourcePath("JoinTree_1." + copyElement.getName() + "." + elementLabel).
                     setType(castedElement.getType()));
         }
         PresentationGroupElement presentationGroupElement = new PresentationGroupElement().
                 setName(copyElement.getName()).
-                setResourcePath("JoinTree_1").
                 setDescription(copyElement.getName()).
                 setDescriptionId("").
                 setLabel(copyElement.getName()).
                 setLabelId("").
                 setElements(presentationElements);
 
-        presentations.add(4, presentationGroupElement);
+        presentations.add(3, presentationGroupElement);
         return domain;
     }
 }

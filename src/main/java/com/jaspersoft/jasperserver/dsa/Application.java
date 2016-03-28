@@ -1,9 +1,7 @@
 package com.jaspersoft.jasperserver.dsa;
 
-import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dsa.common.ConsoleUtil;
-import com.jaspersoft.jasperserver.dsa.domain.DomainUtil;
-import com.jaspersoft.jasperserver.dsa.initialization.app.InitAppHelper;
+import com.jaspersoft.jasperserver.dsa.domain.DomainSamplesUtil;
 import com.jaspersoft.jasperserver.dsa.initialization.app.InitializationStrategy;
 import com.jaspersoft.jasperserver.dsa.initialization.app.InitializationStrategyFactory;
 import org.apache.log4j.Logger;
@@ -26,28 +24,30 @@ public class Application {
         // Initialization and configuration of application
         consoleLogger.info("Choose way of configuration (file or manual) [f/m]:");
         InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar());
-        AppConfiguration configuration = InitAppHelper.initApplication(strategy.initConfiguration());
+
+        DomainSamplesUtil domainSamplesUtil = new DomainSamplesUtil(strategy.initConfiguration());
+        domainSamplesUtil.initSession();
 
         // Create demonstration resources
-        DomainUtil domainUtil = new DomainUtil(configuration);
-        domainUtil.createBaseFolder();
+        domainSamplesUtil.createBaseFolder();
         //create domain with single data island
-        domainUtil.createDomain();
+        domainSamplesUtil.createBaseDomain();
         // Add to domain calculated fields and add them to presentation
-        domainUtil.addCalculatedFields();
+        domainSamplesUtil.addCalculatedFields();
         // Add filters to calculated and normal fields
-        domainUtil.addFilters();
+        domainSamplesUtil.addFilters();
         // Add to domain derived tables
-        domainUtil.addDerivedTable();
+        domainSamplesUtil.addDerivedTable();
         // Add to domain derived tables
-        domainUtil.copyTable("public_customer");
+        domainSamplesUtil.copyTable("public_customer");
+        domainSamplesUtil.addCrossTableCalculatedField();
 
         // Finish executing application
         consoleLogger.info("Delete demonstration resources?[y/n]:");
         if (ConsoleUtil.readChar() == 'y') {
-            domainUtil.deleteBaseFolder();
+            domainSamplesUtil.deleteBaseFolder();
         }
-        configuration.stopApplication();
+        domainSamplesUtil.stopApplication();
 
     }
 

@@ -17,7 +17,6 @@ import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  * <p/>
@@ -28,9 +27,6 @@ import org.apache.log4j.Logger;
  * @see
  */
 public class InitDataHelper {
-
-    private static final Logger appLogger = Logger.getLogger(InitDataHelper.class);
-
     public static final String DATA_SOURCE = "FoodmartDataSourceJNDI";
     public static final String DATA_SOURCE_SCHEMA = "public";
     public static final String DATA_SOURCE_SCHEMA_ALIAS = "schema1";
@@ -52,50 +48,42 @@ public class InitDataHelper {
     public static final String TABLE_NAME_1 = "customer";
     public static final String TABLE_NAME_2 = "product";
 
-
-    private static ClientDomain clientDomain;
+    private static Schema schema;
     private static ResourceGroupElement table0;
     private static ResourceGroupElement table1;
     private static ResourceGroupElement table2;
 
 
-    public static ClientDomain fetchDomain(String baseFolder, String domainName, String dataSourceUri) {
-        if (clientDomain != null) {
-            return clientDomain;
-        }
-        appLogger.info("Start to create domain");
-        clientDomain = new ClientDomain().
+    public static ClientDomain buildDomain(String baseFolder, String domainName, String dataSourceUri) {
+        ClientDomain clientDomain = new ClientDomain().
                 setUri(baseFolder + "/" + domainName).
                 setLabel(domainName).
                 setDataSource(new ClientReference().setUri(dataSourceUri)).
-                setSchema(fetchSchema());
+                setSchema(buildSchema());
 
         return clientDomain;
     }
 
-    private static Schema fetchSchema() {
-        appLogger.info("Start to create domain schema");
-        Schema schema = new Schema();
+    private static Schema buildSchema() {
+        schema = new Schema();
+        // add resources to domain schema
         schema.setResources(initResources());
+        // add presentations to domain schema
         schema.setPresentation(initPresentations());
-        appLogger.info("Domain schema was created successfully");
         return schema;
     }
 
     private static List<ResourceElement> initResources() {
-
-        appLogger.info("Start to add resources to domain");
-
         // init tables
         List<SchemaElement> tables = new ArrayList<SchemaElement>();
-        appLogger.info("Add tables to schema");
         table0 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_0, DATA_SOURCE);
         table1 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_1, DATA_SOURCE);
         table2 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_2, DATA_SOURCE);
+
         tables.add(table0);
         tables.add(table1);
         tables.add(table2);
-// init schemas
+        // init datasource schema and add tables to schema
         ResourceGroupElement publicSchema = new ResourceGroupElement().
                 setName(DATA_SOURCE_SCHEMA_ALIAS).
                 setSourceName(DATA_SOURCE_SCHEMA).
@@ -103,19 +91,18 @@ public class InitDataHelper {
         List<SchemaElement> schemas = new ArrayList<SchemaElement>();
         schemas.add(publicSchema);
 
-        appLogger.info("Add schema to datasource");
-        //init data source
+        //init data source and add schema to datasource
         ResourceGroupElement dataSource = new ResourceGroupElement().
                 setName(DATA_SOURCE).
                 setElements(schemas);
         List<ResourceElement> resources = new ArrayList<ResourceElement>();
-        appLogger.info("Add datasource to resources");
+
+        // add datasource to domain schema
         resources.add(dataSource);
 
-        appLogger.info("Join resources");
         List<Join> joins = new ArrayList<Join>();
 
-// init joins
+        // init joins of tables
         joins.add(new Join().
                 setLeft(FULL_TABLE_NAME_0).
                 setRight(FULL_TABLE_NAME_1).
@@ -127,8 +114,14 @@ public class InitDataHelper {
                 setRight(FULL_TABLE_NAME_2).
                 setExpression("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id").
                 setWeight(1).setType(Join.JoinType.inner));
-        JoinInfo joinInfo = new JoinInfo().setIncludeAllDataIslandJoins(false).setSuppressCircularJoins(false).setJoins(joins);
 
+        // add joins to JoinGroup section of domain schema
+        JoinInfo joinInfo = new JoinInfo().
+                setIncludeAllDataIslandJoins(false).
+                setSuppressCircularJoins(false).
+                setJoins(joins);
+
+        // add references to JoinGroup section of domain schema
         List<SchemaElement> joinResourceElements = new ArrayList<SchemaElement>();
         joinResourceElements.add(new ReferenceElement().
                 setName(FULL_TABLE_NAME_2).
@@ -140,40 +133,38 @@ public class InitDataHelper {
                 setName(FULL_TABLE_NAME_0).
                 setReferencePath("FoodmartDataSourceJNDI.schema1.public_agg_ll_01_sales_fact_1997"));
 
-        appLogger.info("Add joins to join group");
         JoinResourceGroupElement joinResourceGroupElement = new JoinResourceGroupElement().
                 setName(JOIN_TREE_1).
                 setJoinInfo(joinInfo).
                 setElements(joinResourceElements);
-        appLogger.info("add joinGroup to schema");
+
+        // add JoinGroup to domain schema
         resources.add(joinResourceGroupElement);
-        appLogger.info("Join resources");
-        appLogger.info("Adding  resources to domain finished successfully");
         return resources;
 
     }
 
-    private static List<PresentationElement> initPresentations() {
-        appLogger.info("Start to add presentations to domain");
-
+    private static List<PresentationGroupElement> initPresentations() {
+        // fetch presentation elements from resources
         PresentationGroupElement presentationGroupElement0 = resourceToPresentationGroupElement(table0);
-
         PresentationGroupElement presentationGroupElement1 = resourceToPresentationGroupElement(table1);
-
         PresentationGroupElement presentationGroupElement2 = resourceToPresentationGroupElement(table2);
-
         List<PresentationElement> presentationElements = new ArrayList<PresentationElement>();
+
+        // add presentation elements to presentation section of domain schema
         presentationElements.add(presentationGroupElement0);
         presentationElements.add(presentationGroupElement1);
         presentationElements.add(presentationGroupElement2);
-        appLogger.info("Adding  presentations  to domain finished successfully");
-        return presentationElements;
+        PresentationGroupElement presentationDataIsland = new PresentationGroupElement().
+                setName(JOIN_TREE_1).setElements(presentationElements);
+        List<PresentationGroupElement> presentations = new LinkedList<PresentationGroupElement>();
+        presentations.add(presentationDataIsland);
+        return presentations;
     }
 
 
     private static ResourceGroupElement fetchTable(String dataSourceSchema, String tableName, String daraSource) {
         String fullTableName = dataSourceSchema + "_" + tableName;
-
         ResourceGroupElement resourceGroupElement = new ResourceGroupElement();
 
         if (fullTableName.equals(FULL_TABLE_NAME_0)) {
@@ -195,7 +186,6 @@ public class InitDataHelper {
                     setName("time_id").setType(JAVA_LANG_INTEGER));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("unit_sales").setType(JAVA_MATH_BIG_DECIMAL));
-            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
 
@@ -262,7 +252,6 @@ public class InitDataHelper {
                     setName("total_children").setType(JAVA_LANG_SHORT));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("yearly_income").setType(JAVA_LANG_STRING));
-            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
         if (fullTableName.equals(FULL_TABLE_NAME_2)) {
@@ -300,7 +289,6 @@ public class InitDataHelper {
                     setName("srp").setType(JAVA_MATH_BIG_DECIMAL));
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("units_per_case").setType(JAVA_LANG_SHORT));
-            appLogger.info("Table " + FULL_TABLE_NAME_0 + " fetched successfully");
             return resourceGroupElement;
         }
         return null;
@@ -318,7 +306,8 @@ public class InitDataHelper {
                     setDescriptionId("").
                     setLabel(castedElement.getName()).
                     setLabelId("").
-                    setType(castedElement.getType());
+                    setType(castedElement.getType()).
+                    setHierarchicalName(getHierarchicalName(resourceElement.getName(), castedElement.getName()));
             presentationElements.add(presentationSingleElement);
 
             if ((resourceElement.getName().equals(table1.getName()) && castedElement.getName().equals("customer_id")) ||
@@ -330,7 +319,6 @@ public class InitDataHelper {
         PresentationGroupElement presentationGroupElement = new PresentationGroupElement();
         presentationGroupElement.
                 setName(resourceElement.getName()).
-                setResourcePath(JOIN_TREE_1).
                 setDescription(resourceElement.getName()).
                 setDescriptionId("").
                 setLabel(resourceElement.getName()).
@@ -342,6 +330,12 @@ public class InitDataHelper {
     private static String getPath(String source, String schema, String element) {
         Character point = new Character('.');
         return new StringBuilder().append(source).append(point).append(schema).append(point).append(element).toString();
+    }
+
+
+    private static String getHierarchicalName(String fullTableName, String element) {
+        Character point = new Character('.');
+        return new StringBuilder().append(schema).append(point).append(element).toString();
     }
 
 }

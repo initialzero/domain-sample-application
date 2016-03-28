@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  * @version $Id$
  * @see
  */
-public class DomainUtilTest {
+public class DomainSamplesUtilTest {
     AppConfiguration configuration;
 
     @Before
@@ -46,7 +46,7 @@ public class DomainUtilTest {
 
         ClientDomain domainRetrieved = operationResult.getEntity();
 
-        ClientDomain fetchedDomain = InitDataHelper.fetchDomain("/publoc/DomainDemo", "New_domain", "/public/Samples/Data_Sources/FoodmartDataSourceJNDI");
+        ClientDomain fetchedDomain = InitDataHelper.buildDomain("/publoc/DomainDemo", "New_domain", "/public/Samples/Data_Sources/FoodmartDataSourceJNDI");
 
         assertEquals(domainRetrieved.getSchema(), fetchedDomain.getSchema());
         List<ResourceElement> resources = domainRetrieved.getSchema().getResources();

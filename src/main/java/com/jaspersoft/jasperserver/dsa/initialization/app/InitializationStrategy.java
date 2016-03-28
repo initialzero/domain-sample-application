@@ -1,6 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.initialization.app;
 
-import java.util.Properties;
+import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 
 /**
  * <p/>
@@ -12,5 +12,5 @@ import java.util.Properties;
  */
 public interface InitializationStrategy {
 
-    Properties initConfiguration();
+    AppConfiguration initConfiguration();
 }

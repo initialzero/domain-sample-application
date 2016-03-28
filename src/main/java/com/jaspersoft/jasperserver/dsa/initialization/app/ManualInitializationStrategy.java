@@ -1,5 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.initialization.app;
 
+import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +19,7 @@ public class ManualInitializationStrategy implements InitializationStrategy {
     private static final Logger appLogger = Logger.getLogger(ManualInitializationStrategy.class);
     private static final Logger consoleLogger = Logger.getLogger("consoleLogger");
 
-    public Properties initConfiguration() {
+    public AppConfiguration initConfiguration() {
         Properties properties = new Properties();
         String[] initParams = {"url", "username", "password", "baseFolder"};
 
@@ -36,6 +37,6 @@ public class ManualInitializationStrategy implements InitializationStrategy {
         } finally {
             consoleLogger.error("Error reading of parameter from console");
         }
-        return properties;
+        return new AppConfiguration(properties);
     }
 }
