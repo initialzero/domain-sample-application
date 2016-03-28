@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class DomainSamplesUtilTest {
     AppConfiguration configuration;
+    DomainSamplesUtil domainSamplesUtil;
 
     @Before
     public void before() {
@@ -33,14 +34,14 @@ public class DomainSamplesUtilTest {
             e.printStackTrace();
         }
         configuration = new AppConfiguration(properties);
-        configuration.initClient();
-        configuration.initSession();
+        domainSamplesUtil = new DomainSamplesUtil(configuration);
+        domainSamplesUtil.initSession();
 
     }
 
     @Test
     public void compareSchemas() {
-        OperationResult<ClientDomain> operationResult = configuration.getSession().domainService().
+        OperationResult<ClientDomain> operationResult = domainSamplesUtil.session.domainService().
                 domain("/public/New_Domain").
                 get();
 

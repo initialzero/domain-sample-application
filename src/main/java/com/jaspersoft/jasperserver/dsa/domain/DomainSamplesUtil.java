@@ -24,7 +24,7 @@ public class DomainSamplesUtil {
     public static final String DATA_SOURCE_URI = "/public/Samples/Data_Sources/FoodmartDataSourceJNDI";
     private final SchemaManipulator schemaManipulator = new SchemaManipulator();
     private AppConfiguration configuration;
-    private Session session;
+    protected Session session;
 
     public DomainSamplesUtil(AppConfiguration configuration) {
         this.configuration = configuration;
@@ -41,7 +41,6 @@ public class DomainSamplesUtil {
             System.exit(-1);
         }
         appLogger.info("Authentication is successful");
-        initSession();
     }
 
     public void createBaseFolder() {
@@ -129,14 +128,17 @@ public class DomainSamplesUtil {
 
     public void copyTable(String tableName) {
         appLogger.info("Create copy of " + tableName + " table");
-        createDomainOnServer(schemaManipulator.createCopy(
+        createDomainOnServer(schemaManipulator.createTableCopy(
                 InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                         "Base_domain_with_copy_of_table",
                         DATA_SOURCE_URI), tableName));
     }
 
-    public void addConstantCalculationField() {
+    public void addConstantCalculatedField(int constantValue) {
         appLogger.info("Add constant calculation field");
+        createDomainOnServer(schemaManipulator.addConstantCalculatedField(InitDataHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_constant_calculated_field",
+                DATA_SOURCE_URI), constantValue));
     }
 
     public void addCrossTableFilter() {

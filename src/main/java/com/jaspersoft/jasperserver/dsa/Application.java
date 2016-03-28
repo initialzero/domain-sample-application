@@ -40,7 +40,10 @@ public class Application {
         domainSamplesUtil.addDerivedTable();
         // Add to domain derived tables
         domainSamplesUtil.copyTable("public_customer");
+
         domainSamplesUtil.addCrossTableCalculatedField();
+
+        domainSamplesUtil.addConstantCalculatedField(300);
 
         // Finish executing application
         consoleLogger.info("Delete demonstration resources?[y/n]:");

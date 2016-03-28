@@ -2,6 +2,7 @@ package com.jaspersoft.jasperserver.dsa.domain;
 
 import com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper;
 import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
+import com.jaspersoft.jasperserver.dto.resources.domain.ConstantsResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Join;
 import com.jaspersoft.jasperserver.dto.resources.domain.JoinResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationElement;
@@ -9,12 +10,11 @@ import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.QueryResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ReferenceElement;
+import com.jaspersoft.jasperserver.dto.resources.domain.ResourceElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.Map;
 import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_0;
 import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_1;
 import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.FULL_TABLE_NAME_2;
+import static com.jaspersoft.jasperserver.dsa.initialization.data.InitDataHelper.JAVA_LANG_INTEGER;
 
 
 /**
@@ -105,6 +106,52 @@ public class SchemaManipulator {
                 .setHierarchicalName(calcFieldNum)
                 .setResourcePath("JoinTree_1." + calcFieldNum)
                 .setName(calcFieldNum));
+
+        return domain;
+    }
+
+    public ClientDomain addConstantCalculatedField(ClientDomain domain, Integer value) {
+
+        List<ResourceElement> resources = domain.getSchema().getResources();
+        ConstantsResourceGroupElement constantsResourceGroupElement = new ConstantsResourceGroupElement().
+                setName("constant_fields_level");
+
+        List<ResourceSingleElement> constantElements = new LinkedList<ResourceSingleElement>();
+        String constantField = "ConstantField";
+        constantElements.add(new ResourceSingleElement().
+                setName(constantField).
+                setType(JAVA_LANG_INTEGER).
+                setExpression(value.toString()));
+
+        constantsResourceGroupElement.setElements(constantElements);
+        resources.add(1, constantsResourceGroupElement);
+
+        // add constant calculated field to presentation
+        List<PresentationGroupElement> presentations = domain.getSchema().getPresentation();
+
+        List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
+        presentationSingleElements.add(new PresentationSingleElement().
+                setType(JAVA_LANG_INTEGER)
+                .setLabel(constantField)
+                .setLabelId("")
+                .setDescription(constantField)
+                .setDescriptionId("")
+                .setHierarchicalName("constant_fields_level.ConstantField")
+                .setResourcePath("constant_fields_level.ConstantField")
+                .setName(constantField));
+        /*
+        PresentationGroupElement constants = new PresentationGroupElement().
+                setName("constant_fields_level").
+                setDescription("constant_fields_level").
+                setLabel("Constants").
+                setElements(presentationSingleElements);
+
+        List<PresentationElement> constantsList = new LinkedList<PresentationElement>();
+        constantsList.add(constants);
+*/
+        presentations.add(new PresentationGroupElement().
+        setName("constant_fields_level").
+        setElements(presentationSingleElements));
 
         return domain;
     }
@@ -207,15 +254,7 @@ public class SchemaManipulator {
         return clientDomain;
     }
 
-    private void sortResources(List<SchemaElement> resources) {
-        Collections.sort(resources, new Comparator<SchemaElement>() {
-            public int compare(SchemaElement element1, SchemaElement element2) {
-                return element1.getName().toLowerCase().compareTo(element2.getName().toLowerCase());
-            }
-        });
-    }
-
-    public ClientDomain createCopy(ClientDomain domain, String tableName) {
+     public ClientDomain createTableCopy(ClientDomain domain, String tableName) {
 
         // Create copy of table in resources
         ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
