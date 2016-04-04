@@ -1,8 +1,7 @@
-package com.jaspersoft.jasperserver.dsa.initialization.app;
+package com.jaspersoft.jasperserver.dsa.initialization;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -27,8 +26,8 @@ public class FileInitializationStrategy implements InitializationStrategy {
             String readLine = reader.readLine();
             appLogger.info("The application is configured from " + readLine + " file");
             properties.load(this.getClass().getClassLoader().getResourceAsStream(readLine));
-        } catch (IOException e) {
-            appLogger.error("Error reading of file name from console", e);
+        } catch (Exception e) {
+            appLogger.error("Error reading of file ", e);
         }
         return new AppConfiguration(properties);
     }

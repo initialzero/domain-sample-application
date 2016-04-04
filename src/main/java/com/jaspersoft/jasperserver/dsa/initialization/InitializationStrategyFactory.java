@@ -1,4 +1,4 @@
-package com.jaspersoft.jasperserver.dsa.initialization.app;
+package com.jaspersoft.jasperserver.dsa.initialization;
 
 import org.apache.log4j.Logger;
 

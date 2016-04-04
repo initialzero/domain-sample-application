@@ -1,4 +1,4 @@
-package com.jaspersoft.jasperserver.dsa.initialization.data;
+package com.jaspersoft.jasperserver.dsa.domain;
 
 import com.jaspersoft.jasperserver.dto.resources.ClientReference;
 import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
@@ -7,7 +7,6 @@ import com.jaspersoft.jasperserver.dto.resources.domain.JoinInfo;
 import com.jaspersoft.jasperserver.dto.resources.domain.JoinResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
-import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ReferenceElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceGroupElement;
@@ -18,6 +17,31 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.DATA_SOURCE;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.DATA_SOURCE_SCHEMA;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.DATA_SOURCE_SCHEMA_ALIAS;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.FULL_TABLE_NAME_0_AGG_11_01;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.FULL_TABLE_NAME_1_CUSTOMER;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.FULL_TABLE_NAME_2_PRODUCT;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.FULL_TABLE_NAME_3_AGG_C_14;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.FULL_TABLE_NAME_4_CUSTOMER_SALES;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_BOOLEAN;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_DOUBLE;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_INTEGER;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_LONG;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_SHORT;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_LANG_STRING;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_MATH_BIG_DECIMAL;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JAVA_UTIL_DATE;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.JOIN_TREE_1;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.TABLE_NAME_0_AGG_11_01;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.TABLE_NAME_1_CUSTOMER;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.TABLE_NAME_2_PRODUCT;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.TABLE_NAME_3_AGG_C_14;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.TABLE_NAME_4_CUSTOMER_SALES;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getHierarchicalName;
+import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPresentationSingleElementName;
+
 /**
  * <p/>
  * <p/>
@@ -26,32 +50,12 @@ import java.util.List;
  * @version $Id$
  * @see
  */
-public class InitDataHelper {
-    public static final String DATA_SOURCE = "FoodmartDataSourceJNDI";
-    public static final String DATA_SOURCE_SCHEMA = "public";
-    public static final String DATA_SOURCE_SCHEMA_ALIAS = "schema1";
-    public static final String FULL_TABLE_NAME_0 = "public_agg_ll_01_sales_fact_1997";
-    public static final String FULL_TABLE_NAME_1 = "public_customer";
-    public static final String FULL_TABLE_NAME_2 = "public_product";
-
-    public static final String JOIN_TREE_1 = "JoinTree_1";
-
-    public static final String JAVA_LANG_STRING = "java.lang.String";
-    public static final String JAVA_LANG_INTEGER = "java.lang.Integer";
-    public static final String JAVA_UTIL_DATE = "java.util.Date";
-    public static final String JAVA_MATH_BIG_DECIMAL = "java.math.BigDecimal";
-    public static final String JAVA_LANG_LONG = "java.lang.Long";
-    public static final String JAVA_LANG_SHORT = "java.lang.Short";
-    public static final String JAVA_LANG_DOUBLE = "java.lang.Double";
-    public static final String JAVA_LANG_BOOLEAN = "java.lang.Boolean";
-    public static final String TABLE_NAME_0 = "agg_ll_01_sales_fact_1997";
-    public static final String TABLE_NAME_1 = "customer";
-    public static final String TABLE_NAME_2 = "product";
+public class InitDomainHelper {
 
     private static Schema schema;
-    private static ResourceGroupElement table0;
-    private static ResourceGroupElement table1;
-    private static ResourceGroupElement table2;
+    public static ResourceGroupElement table0_agg_11_01;
+    public static ResourceGroupElement table1_customer;
+    public static ResourceGroupElement table2_product;
 
 
     public static ClientDomain buildDomain(String baseFolder, String domainName, String dataSourceUri) {
@@ -76,13 +80,13 @@ public class InitDataHelper {
     private static List<ResourceElement> initResources() {
         // init tables
         List<SchemaElement> tables = new ArrayList<SchemaElement>();
-        table0 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_0, DATA_SOURCE);
-        table1 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_1, DATA_SOURCE);
-        table2 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_2, DATA_SOURCE);
+        table0_agg_11_01 = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_0_AGG_11_01, DATA_SOURCE);
+        table1_customer = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_1_CUSTOMER, DATA_SOURCE);
+        table2_product = fetchTable(DATA_SOURCE_SCHEMA, TABLE_NAME_2_PRODUCT, DATA_SOURCE);
 
-        tables.add(table0);
-        tables.add(table1);
-        tables.add(table2);
+        tables.add(table0_agg_11_01);
+        tables.add(table1_customer);
+        tables.add(table2_product);
         // init datasource schema and add tables to schema
         ResourceGroupElement publicSchema = new ResourceGroupElement().
                 setName(DATA_SOURCE_SCHEMA_ALIAS).
@@ -104,14 +108,14 @@ public class InitDataHelper {
 
         // init joins of tables
         joins.add(new Join().
-                setLeft(FULL_TABLE_NAME_0).
-                setRight(FULL_TABLE_NAME_1).
+                setLeft(FULL_TABLE_NAME_0_AGG_11_01).
+                setRight(FULL_TABLE_NAME_1_CUSTOMER).
                 setExpression("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id").
                 setWeight(1)
                 .setType(Join.JoinType.inner));
         joins.add(new Join().
-                setLeft(FULL_TABLE_NAME_0).
-                setRight(FULL_TABLE_NAME_2).
+                setLeft(FULL_TABLE_NAME_0_AGG_11_01).
+                setRight(FULL_TABLE_NAME_2_PRODUCT).
                 setExpression("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id").
                 setWeight(1).setType(Join.JoinType.inner));
 
@@ -124,14 +128,14 @@ public class InitDataHelper {
         // add references to JoinGroup section of domain schema
         List<SchemaElement> joinResourceElements = new ArrayList<SchemaElement>();
         joinResourceElements.add(new ReferenceElement().
-                setName(FULL_TABLE_NAME_2).
-                setReferencePath("FoodmartDataSourceJNDI.schema1.public_product"));
+                setName(FULL_TABLE_NAME_2_PRODUCT).
+                setReferencePath(SchemaUtil.getPath(DATA_SOURCE, DATA_SOURCE_SCHEMA_ALIAS, FULL_TABLE_NAME_2_PRODUCT)));
         joinResourceElements.add(new ReferenceElement().
-                setName(FULL_TABLE_NAME_1).
-                setReferencePath("FoodmartDataSourceJNDI.schema1.public_customer"));
+                setName(FULL_TABLE_NAME_1_CUSTOMER).
+                setReferencePath(SchemaUtil.getPath(DATA_SOURCE, DATA_SOURCE_SCHEMA_ALIAS, FULL_TABLE_NAME_1_CUSTOMER)));
         joinResourceElements.add(new ReferenceElement().
-                setName(FULL_TABLE_NAME_0).
-                setReferencePath("FoodmartDataSourceJNDI.schema1.public_agg_ll_01_sales_fact_1997"));
+                setName(FULL_TABLE_NAME_0_AGG_11_01).
+                setReferencePath(SchemaUtil.getPath(DATA_SOURCE, DATA_SOURCE_SCHEMA_ALIAS,FULL_TABLE_NAME_0_AGG_11_01)));
 
         JoinResourceGroupElement joinResourceGroupElement = new JoinResourceGroupElement().
                 setName(JOIN_TREE_1).
@@ -146,9 +150,11 @@ public class InitDataHelper {
 
     private static List<PresentationGroupElement> initPresentations() {
         // fetch presentation elements from resources
-        PresentationGroupElement presentationGroupElement0 = resourceToPresentationGroupElement(table0);
-        PresentationGroupElement presentationGroupElement1 = resourceToPresentationGroupElement(table1);
-        PresentationGroupElement presentationGroupElement2 = resourceToPresentationGroupElement(table2);
+        PresentationGroupElement presentationGroupElement0 = SchemaUtil.resourceToPresentationGroupElement(table0_agg_11_01, JOIN_TREE_1);
+        getPresentationSingleElementName(presentationGroupElement0, "customer_id").setName("customer_id1").setDescription("customer_id1").setHierarchicalName(getHierarchicalName(FULL_TABLE_NAME_0_AGG_11_01, "customer_id1"));
+        getPresentationSingleElementName(presentationGroupElement0, "product_id").setName("product_id1").setDescription("product_id1").setHierarchicalName(getHierarchicalName(FULL_TABLE_NAME_0_AGG_11_01, "product_id1"));
+        PresentationGroupElement presentationGroupElement1 = SchemaUtil.resourceToPresentationGroupElement(table1_customer, JOIN_TREE_1);
+        PresentationGroupElement presentationGroupElement2 = SchemaUtil.resourceToPresentationGroupElement(table2_product, JOIN_TREE_1);
         List<PresentationElement> presentationElements = new ArrayList<PresentationElement>();
 
         // add presentation elements to presentation section of domain schema
@@ -162,15 +168,14 @@ public class InitDataHelper {
         return presentations;
     }
 
-
-    private static ResourceGroupElement fetchTable(String dataSourceSchema, String tableName, String daraSource) {
+    public static ResourceGroupElement fetchTable(String dataSourceSchema, String tableName, String daraSource) {
         String fullTableName = dataSourceSchema + "_" + tableName;
         ResourceGroupElement resourceGroupElement = new ResourceGroupElement();
 
-        if (fullTableName.equals(FULL_TABLE_NAME_0)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_0_AGG_11_01)) {
             resourceGroupElement.
-                    setName(FULL_TABLE_NAME_0).
-                    setSourceName(TABLE_NAME_0).
+                    setName(FULL_TABLE_NAME_0_AGG_11_01).
+                    setSourceName(TABLE_NAME_0_AGG_11_01).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("customer_id").setType(JAVA_LANG_INTEGER));
@@ -188,11 +193,40 @@ public class InitDataHelper {
                     setName("unit_sales").setType(JAVA_MATH_BIG_DECIMAL));
             return resourceGroupElement;
         }
-
-        if (fullTableName.equals(FULL_TABLE_NAME_1)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_3_AGG_C_14)) {
             resourceGroupElement.
-                    setName(FULL_TABLE_NAME_1).
-                    setSourceName(TABLE_NAME_1).
+                    setName(FULL_TABLE_NAME_3_AGG_C_14).
+                    setSourceName(TABLE_NAME_3_AGG_C_14).
+                    setElements(new ArrayList<SchemaElement>());
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("customer_id").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("fact_count").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("month_of_year").setType(JAVA_LANG_SHORT));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("product_id").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("promotion_id").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("quarter").setType(JAVA_LANG_STRING));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("store_cost").setType(JAVA_MATH_BIG_DECIMAL));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("store_id").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("store_sales").setType(JAVA_MATH_BIG_DECIMAL));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("the_year").setType(JAVA_LANG_SHORT));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("unit_sales").setType(JAVA_MATH_BIG_DECIMAL));
+            return resourceGroupElement;
+        }
+
+        if (fullTableName.equals(FULL_TABLE_NAME_1_CUSTOMER)) {
+            resourceGroupElement.
+                    setName(FULL_TABLE_NAME_1_CUSTOMER).
+                    setSourceName(TABLE_NAME_1_CUSTOMER).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("account_num").setType(JAVA_LANG_LONG));
@@ -254,10 +288,10 @@ public class InitDataHelper {
                     setName("yearly_income").setType(JAVA_LANG_STRING));
             return resourceGroupElement;
         }
-        if (fullTableName.equals(FULL_TABLE_NAME_2)) {
+        if (fullTableName.equals(FULL_TABLE_NAME_2_PRODUCT)) {
             resourceGroupElement.
-                    setName(FULL_TABLE_NAME_2).
-                    setSourceName(TABLE_NAME_2).
+                    setName(FULL_TABLE_NAME_2_PRODUCT).
+                    setSourceName(TABLE_NAME_2_PRODUCT).
                     setElements(new ArrayList<SchemaElement>());
             resourceGroupElement.getElements().add(new ResourceSingleElement().
                     setName("brand_name").setType(JAVA_LANG_STRING));
@@ -291,51 +325,20 @@ public class InitDataHelper {
                     setName("units_per_case").setType(JAVA_LANG_SHORT));
             return resourceGroupElement;
         }
-        return null;
-    }
-
-    public static PresentationGroupElement resourceToPresentationGroupElement(ResourceGroupElement resourceElement) {
-        List<PresentationElement> presentationElements = new LinkedList<PresentationElement>();
-
-        for (SchemaElement element : resourceElement.getElements()) {
-            ResourceSingleElement castedElement = (ResourceSingleElement) element;
-            PresentationSingleElement presentationSingleElement = new PresentationSingleElement().
-                    setName(castedElement.getName()).
-                    setResourcePath(getPath(JOIN_TREE_1, resourceElement.getName(), castedElement.getName())).
-                    setDescription(castedElement.getName()).
-                    setDescriptionId("").
-                    setLabel(castedElement.getName()).
-                    setLabelId("").
-                    setType(castedElement.getType()).
-                    setHierarchicalName(getHierarchicalName(resourceElement.getName(), castedElement.getName()));
-            presentationElements.add(presentationSingleElement);
-
-            if ((resourceElement.getName().equals(table1.getName()) && castedElement.getName().equals("customer_id")) ||
-                    (resourceElement.getName().equals(table2.getName()) && castedElement.getName().equals("product_id"))) {
-                String newName = castedElement.getName() + "1";
-                presentationSingleElement.setName(newName).setDescription(newName);
-            }
+        if (fullTableName.equals(FULL_TABLE_NAME_4_CUSTOMER_SALES)) {
+            resourceGroupElement.
+                    setName(FULL_TABLE_NAME_4_CUSTOMER_SALES).
+                    setSourceName(TABLE_NAME_4_CUSTOMER_SALES).
+                    setElements(new ArrayList<SchemaElement>());
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("customer_fullname").setType(JAVA_LANG_STRING));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("customer_id").setType(JAVA_LANG_INTEGER));
+            resourceGroupElement.getElements().add(new ResourceSingleElement().
+                    setName("store_sales").setType(JAVA_MATH_BIG_DECIMAL));
+            return resourceGroupElement;
         }
-        PresentationGroupElement presentationGroupElement = new PresentationGroupElement();
-        presentationGroupElement.
-                setName(resourceElement.getName()).
-                setDescription(resourceElement.getName()).
-                setDescriptionId("").
-                setLabel(resourceElement.getName()).
-                setLabelId("").
-                setElements(presentationElements);
-        return presentationGroupElement;
-    }
-
-    private static String getPath(String source, String schema, String element) {
-        Character point = new Character('.');
-        return new StringBuilder().append(source).append(point).append(schema).append(point).append(element).toString();
-    }
-
-
-    private static String getHierarchicalName(String fullTableName, String element) {
-        Character point = new Character('.');
-        return new StringBuilder().append(schema).append(point).append(element).toString();
+        return null;
     }
 
 }

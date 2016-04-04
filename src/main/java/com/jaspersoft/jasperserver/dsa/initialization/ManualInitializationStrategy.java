@@ -1,4 +1,4 @@
-package com.jaspersoft.jasperserver.dsa.initialization.app;
+package com.jaspersoft.jasperserver.dsa.initialization;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
