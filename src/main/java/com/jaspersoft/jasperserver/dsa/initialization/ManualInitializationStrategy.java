@@ -34,8 +34,7 @@ public class ManualInitializationStrategy implements InitializationStrategy {
             }
         } catch (IOException e) {
             appLogger.error("Error reading of parameter from console", e);
-        } finally {
-            consoleLogger.error("Error reading of parameter from console");
+            System.exit(1);
         }
         return new AppConfiguration(properties);
     }

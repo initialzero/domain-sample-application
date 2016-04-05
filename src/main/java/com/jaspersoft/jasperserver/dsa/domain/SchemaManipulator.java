@@ -1,6 +1,5 @@
 package com.jaspersoft.jasperserver.dsa.domain;
 
-import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
 import com.jaspersoft.jasperserver.dto.resources.domain.ConstantsResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Join;
 import com.jaspersoft.jasperserver.dto.resources.domain.JoinInfo;
@@ -13,6 +12,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.ReferenceElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceSingleElement;
+import com.jaspersoft.jasperserver.dto.resources.domain.Schema;
 import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -50,9 +50,9 @@ import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresen
  */
 public class SchemaManipulator {
 
-    public ClientDomain addCalculatedFields(ClientDomain domain) {
+    public void addCalculatedFields(Schema schema) {
 
-        ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
 
@@ -77,16 +77,15 @@ public class SchemaManipulator {
 
         }
         // add calculated fields to presentation
-        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
+        List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
         presentations.add(resourceToPresentationSingleElement(resourceSingleElement1, JOIN_TREE_1, FULL_TABLE_NAME_0_AGG_11_01));
         presentations.add(resourceToPresentationSingleElement(resourceSingleElement2, JOIN_TREE_1, FULL_TABLE_NAME_1_CUSTOMER));
 
-        return domain;
     }
 
-    public ClientDomain addCrossTableCalculatedFields(ClientDomain domain) {
+    public void addCrossTableCalculatedFields(Schema schema) {
 
-        JoinResourceGroupElement joins = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
+        JoinResourceGroupElement joins = (JoinResourceGroupElement) schema.getResources().get(1);
         List<SchemaElement> joinsElements = joins.getElements();
 
         // add calculated fields to particular tables in joinsElements
@@ -96,7 +95,7 @@ public class SchemaManipulator {
                 setType(JAVA_LANG_STRING).
                 setExpression("concat(public_customer.fullname,', ',public_product.brand_name)"));
         // add calculated fields to presentation
-        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
+        List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
         presentations.add(new PresentationSingleElement().
                 setType(JAVA_LANG_STRING)
                 .setLabel(calcFieldName)
@@ -107,12 +106,11 @@ public class SchemaManipulator {
                 .setResourcePath(getHierarchicalName(JOIN_TREE_1, calcFieldName))
                 .setName(calcFieldName));
 
-        return domain;
     }
 
-    public ClientDomain addConstantCalculatedField(ClientDomain domain, Integer value) {
+    public void addConstantCalculatedField(Schema schema, Integer value) {
 
-        List<ResourceElement> resources = domain.getSchema().getResources();
+        List<ResourceElement> resources = schema.getResources();
         String constantField = "ConstantField";
         String constant_fields_level = "constant_fields_level";
         // create constant elements group
@@ -129,7 +127,7 @@ public class SchemaManipulator {
         resources.add(1, constantsResourceGroupElement);
 
         // add constant group to presentation
-        List<PresentationGroupElement> presentations = domain.getSchema().getPresentation();
+        List<PresentationGroupElement> presentations = schema.getPresentation();
 
         List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
         presentationSingleElements.add(new PresentationSingleElement().
@@ -146,12 +144,11 @@ public class SchemaManipulator {
                 setName(constant_fields_level).
                 setElements(presentationSingleElements));
 
-        return domain;
     }
 
-    public ClientDomain addFilters(ClientDomain clientDomain) {
+    public void addFilters(Schema schema) {
 
-        ResourceGroupElement datasource = (ResourceGroupElement) clientDomain.getSchema().getResources().get(0);
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
 
@@ -164,21 +161,17 @@ public class SchemaManipulator {
                 ((ResourceGroupElement) resource).setFilterExpression("low_fat == true and net_weight < 10.0");
             }
         }
-
-        return clientDomain;
     }
 
-    public ClientDomain addCrossTableFilter(ClientDomain domain) {
-        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
+    public void addCrossTableFilter(Schema schema) {
+        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) schema.getResources().get(1);
         // add cross table filter to join group
         joinGroup.setFilterExpression("not contains(public_product.brand_name, public_customer.fname)");
-
-        return domain;
     }
 
-    public ClientDomain addTwoFieldsFilter(ClientDomain domain) {
+    public void addTwoFieldsFilter(Schema schema) {
 
-        ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
 
@@ -189,14 +182,12 @@ public class SchemaManipulator {
                 ((ResourceGroupElement) resource).setFilterExpression("contains(fullname, fname)");
             }
         }
-
-        return domain;
     }
 
-    public ClientDomain addDerivedTable(ClientDomain clientDomain) {
+    public void addDerivedTable(Schema schema) {
 
         // add  new query resource element to resources
-        ResourceGroupElement datasource = (ResourceGroupElement) clientDomain.getSchema().getResources().get(0);
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         List<SchemaElement> singleElements = new LinkedList<SchemaElement>();
 
         ResourceSingleElement resourceSingleElement0 = new ResourceSingleElement().setName("customer_id").setType(JAVA_LANG_INTEGER);
@@ -214,7 +205,7 @@ public class SchemaManipulator {
                 .setQuery("select * from public.customer"));
 
         // join new query resource with existing resources in data island
-        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) clientDomain.getSchema().getResources().get(1);
+        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) schema.getResources().get(1);
         List<SchemaElement> referenceElements = joinGroup.getElements();
         referenceElements.add(new ReferenceElement().
                 setName(queryElementName).
@@ -226,8 +217,8 @@ public class SchemaManipulator {
                 setWeight(1).
                 setType(Join.JoinType.inner));
 
-        // ann new query resource to presentation
-        List<PresentationElement> presentations = clientDomain.getSchema().getPresentation().get(0).getElements();
+        // ann new query resources to presentation
+        List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
         List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
         presentationSingleElements.add(resourceToPresentationSingleElement(resourceSingleElement0, JOIN_TREE_1, queryElementName));
         presentationSingleElements.add(resourceToPresentationSingleElement(resourceSingleElement1, JOIN_TREE_1, queryElementName));
@@ -243,13 +234,12 @@ public class SchemaManipulator {
                 .setElements(presentationSingleElements);
         addPostfix(presentationGroupElement, 2);
         presentations.add(presentationGroupElement);
-        return clientDomain;
     }
 
-    public ClientDomain createTableCopy(ClientDomain domain, String tableName) {
+    public void createTableCopy(Schema schema, String tableName) {
 
         // Create copy of table in resources
-        ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
         ResourceGroupElement copyElement = null;
@@ -263,7 +253,7 @@ public class SchemaManipulator {
         resources.add(copyElement);
 
         // Join copied table with existing table in data island
-        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) domain.getSchema().getResources().get(1);
+        JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) schema.getResources().get(1);
         List<SchemaElement> referenceElements = joinGroup.getElements();
         referenceElements.add(new ReferenceElement().
                 setName(copyElement.getName()).
@@ -276,7 +266,7 @@ public class SchemaManipulator {
                 setType(Join.JoinType.inner));
 
         // Add copied table to presentation
-        List<PresentationElement> presentations = domain.getSchema().getPresentation().get(0).getElements();
+        List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
 
         List<PresentationElement> presentationElements = new ArrayList<PresentationElement>();
         String elementName;
@@ -291,7 +281,7 @@ public class SchemaManipulator {
                     setLabelId("").
                     setDescription(elementName).
                     setDescriptionId("").
-                    setHierarchicalName(getHierarchicalName(copyElement.getName(),elementLabel)).
+                    setHierarchicalName(getHierarchicalName(copyElement.getName(), elementLabel)).
                     setResourcePath(getPath(JOIN_TREE_1, copyElement.getName(), elementLabel)).
                     setType(castedElement.getType()));
         }
@@ -304,13 +294,12 @@ public class SchemaManipulator {
                 setElements(presentationElements);
 
         presentations.add(3, presentationGroupElement);
-        return domain;
     }
 
-    public ClientDomain addDataIslands(ClientDomain domain) {
+    public void addDataIslands(Schema schema) {
 
-        // add resources for new data islands
-        ResourceGroupElement datasource = (ResourceGroupElement) domain.getSchema().getResources().get(0);
+        // fetch  and get copy of resources  and add them to resources to join in new data islands
+        ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
         ResourceGroupElement datasourceSchema = (ResourceGroupElement) datasource.getElements().get(0);
         List<SchemaElement> resources = datasourceSchema.getElements();
 
@@ -382,9 +371,10 @@ public class SchemaManipulator {
                 setJoinInfo(new JoinInfo().setIncludeAllDataIslandJoins(false).setSuppressCircularJoins(false).setJoins(joinsList1)).
                 setElements(referenceElements1);
 
-        domain.getSchema().getResources().add(joinTree2);
-        domain.getSchema().getResources().add(joinTree3);
+        schema.getResources().add(joinTree2);
+        schema.getResources().add(joinTree3);
 
+        // add new data islands to presentation
         PresentationGroupElement joinTree2PresentationGroupElement = new PresentationGroupElement().setName(JOIN_TREE_2);
         List<PresentationElement> joinTree2PresentationGroupElements = new LinkedList<PresentationElement>();
 
@@ -415,22 +405,12 @@ public class SchemaManipulator {
 
         joinTree3PresentationGroupElement.setElements(joinTree3PresentationGroupElements);
 
-        domain.getSchema().getPresentation().add(joinTree2PresentationGroupElement);
-        domain.getSchema().getPresentation().add(joinTree3PresentationGroupElement);
-
-        return domain;
+        schema.getPresentation().add(joinTree2PresentationGroupElement);
+        schema.getPresentation().add(joinTree3PresentationGroupElement);
     }
 
-    private void addPostfix(PresentationGroupElement groupElement, int postfix) {
-        for (PresentationElement presentationElement : groupElement.getElements()) {
-            presentationElement.setName(presentationElement.getName() + postfix);
-            presentationElement.setDescription(presentationElement.getDescription() + postfix);
-            ((PresentationSingleElement) presentationElement).setHierarchicalName(((PresentationSingleElement) presentationElement).getHierarchicalName() + postfix);
-        }
-    }
-
-    public ClientDomain addFieldsWithRestructuring(ClientDomain domain) {
-        List<PresentationElement> presentationElements = domain.getSchema().getPresentation().get(0).getElements();
+    public void addFieldsWithRestructuring(Schema schema) {
+        List<PresentationElement> presentationElements = schema.getPresentation().get(0).getElements();
         PresentationSingleElement presentationSingleElement0 = null;
         PresentationSingleElement presentationSingleElement1 = null;
         PresentationSingleElement presentationSingleElement2 = null;
@@ -438,6 +418,7 @@ public class SchemaManipulator {
         PresentationSingleElement presentationSingleElement4 = null;
         PresentationSingleElement presentationSingleElement5 = null;
 
+        // find particular fields and remove them from presentation sets
         for (PresentationElement presentationElement : presentationElements) {
             if (presentationElement.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
                 presentationSingleElement0 = getPresentationSingleElementName((PresentationGroupElement) presentationElement, "customer_id");
@@ -458,6 +439,8 @@ public class SchemaManipulator {
                 ((PresentationGroupElement) presentationElement).getElements().remove(presentationSingleElement5);
             }
         }
+
+        // add some of removed elements to new set
         PresentationGroupElement presentationGroupElement = new PresentationGroupElement();
         String demoSetName = "DemoSet";
         List<PresentationElement> presentationSingleElements = new LinkedList<PresentationElement>();
@@ -475,14 +458,21 @@ public class SchemaManipulator {
                 setElements(presentationSingleElements);
 
         presentationElements.add(presentationGroupElement);
+
+        // add removed elements to presentation without adding to any set
         presentationElements.add(presentationSingleElement3.
                 setHierarchicalName("low_fat"));
         presentationElements.add(presentationSingleElement5.
                 setHierarchicalName("product_id1"));
         presentationElements.add(presentationSingleElement2.
                 setHierarchicalName("net_weight"));
+    }
 
-
-        return domain;
+    private void addPostfix(PresentationGroupElement groupElement, int postfix) {
+        for (PresentationElement presentationElement : groupElement.getElements()) {
+            presentationElement.setName(presentationElement.getName() + postfix);
+            presentationElement.setDescription(presentationElement.getDescription() + postfix);
+            ((PresentationSingleElement) presentationElement).setHierarchicalName(((PresentationSingleElement) presentationElement).getHierarchicalName() + postfix);
+        }
     }
 }
