@@ -63,7 +63,7 @@ D:\config.properties
 [INFO] Authentication on JasperReportsServer
 
 ```
- Here is example of `config.property` file:
+ Here is example of `config.properties` file:
  ```
  url=http://localhost:9080/jrs-pro-feature-domain-designer-schema-conversion
  username=superuser
