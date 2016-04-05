@@ -1,6 +1,4 @@
-# domain-sample-application
-Sample application for demonstration Domain API
-Integration tests for Rest Client for JasperReports Server
+# Sample application for demonstration Domain API
 ===========================================================
 
 The application demonstrates functionality of doamin designer of JasperReports servers. Also it shows how to use schema of domain.
@@ -27,4 +25,12 @@ To run application enter in comman line:
 ```java
 java -jar -Dlog4j.configuration=file:"./path/to/log4j.properties" domain-sample-application-1.0-jar-with-dependencies.jar
 ```
+Configuration
+-------------
+To use the application you should specify  set of parameters such as:
+- URI of JasperReportsServer;
+- username;
+- password;
+- base foder, where samples will be located.
 
+Domain sample application allow you set this parameters from command line or enter path to `properties` file.
