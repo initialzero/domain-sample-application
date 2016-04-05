@@ -21,9 +21,9 @@ or download source code directly from the main page of repository `https://githu
 mvn package
 ```
 You can find executable jar file in `target` folder.
-To run application enter in comman line:
+To run application enter in command line:
 ```java
-java -jar -Dlog4j.configuration=file:"./path/to/log4j.properties" domain-sample-application-1.0-jar-with-dependencies.jar
+java -jar domain-sample-application-1.0.jar
 ```
 Configuration
 -------------
@@ -31,6 +31,6 @@ To use the application you should specify  set of parameters such as:
 - URI of JasperReportsServer;
 - username;
 - password;
-- base foder, where samples will be located.
+- base folder, where samples will be located.
 
 Domain sample application allow you set this parameters from command line or enter path to `properties` file.
