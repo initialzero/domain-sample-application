@@ -31,6 +31,8 @@ public class DomainSamplesUtil {
 
     public void initSession() {
         appLogger.info("Authentication on JasperReportsServer");
+
+        // init JavaRestClient and log in on the JasperReportsServer
         RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(configuration.getProperties());
         JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
         session = client.authenticate(configuration.getUsername(),
@@ -87,91 +89,159 @@ public class DomainSamplesUtil {
 
     public void createBaseDomain() {
         appLogger.info("Start to create domain with single data island on the server...");
-        createDomainOnServer(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain baseDomain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain",
-                DATA_SOURCE_URI));
+                DATA_SOURCE_URI);
+
+        // save domain on the server
+        saveDomain(baseDomain);
+
     }
 
     public void addCalculatedFields() {
         appLogger.info("Add calculated fields to base domain...");
-        createDomainOnServer(schemaManipulator.addCalculatedFields(
-                InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
-                        "Base_domain_with_calculated_fields",
-                        DATA_SOURCE_URI)));
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_calculated_fields",
+                DATA_SOURCE_URI);
+
+        // add calculated fields to domain schema
+        schemaManipulator.addCalculatedFields(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
 
     }
 
     public void addCrossTableCalculatedField() {
         appLogger.info("Add cross table calculated field to base domain...");
-        createDomainOnServer(schemaManipulator.addCrossTableCalculatedFields(
-                InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
-                        "Base_domain_with_cross_table_calculated_fields",
-                        DATA_SOURCE_URI)));
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_cross_table_calculated_fields",
+                DATA_SOURCE_URI);
+
+        // add cross table calculated fields to domain schema
+        schemaManipulator.addCrossTableCalculatedFields(domain.getSchema());
+
+        // save domain on the server
+         saveDomain(domain);
 
     }
 
     public void addFilters() {
         appLogger.info("Add filters to particular tables in base domain...");
-        createDomainOnServer(schemaManipulator.addFilters(
-                InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
-                        "Base_domain_with_filters",
-                        DATA_SOURCE_URI)));
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_filters",
+                DATA_SOURCE_URI);
+
+        // add filters to domain schema
+        schemaManipulator.addFilters(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
 
     public void addDerivedTable() {
         appLogger.info("Add derived table to base domain...");
-        createDomainOnServer(schemaManipulator.addDerivedTable(
-                InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
-                        "Base_domain_with_derived_table",
-                        DATA_SOURCE_URI)));
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_derived_table",
+                DATA_SOURCE_URI);
+
+        // add derived table to domain schema
+        schemaManipulator.addDerivedTable(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void copyTable(String tableName) {
         appLogger.info("Create copy of " + tableName + " table in base domain...");
-        createDomainOnServer(schemaManipulator.createTableCopy(
-                InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
-                        "Base_domain_with_copy_of_table",
-                        DATA_SOURCE_URI), tableName));
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+                "Base_domain_with_copy_of_table",
+                DATA_SOURCE_URI);
+        schemaManipulator.createTableCopy(domain.getSchema(), tableName);
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void addConstantCalculatedField(int constantValue) {
         appLogger.info("Add constant calculation field to base domain...");
-        createDomainOnServer(schemaManipulator.addConstantCalculatedField(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_constant_calculated_field",
-                DATA_SOURCE_URI), constantValue));
+                DATA_SOURCE_URI);
+
+        // add constant calculated field to domain schema
+        schemaManipulator.addConstantCalculatedField(domain.getSchema(), constantValue);
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void addCrossTableFilter() {
         appLogger.info("Add cross table filter to base domain...");
-        createDomainOnServer(schemaManipulator.addCrossTableFilter(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_cross_table_filter",
-                DATA_SOURCE_URI)));
+                DATA_SOURCE_URI);
+
+        // add cross table filter to domain schema
+        schemaManipulator.addCrossTableFilter(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void addTwoFieldsFilter() {
         appLogger.info("Add two fields filter of one table to base domain...");
-        createDomainOnServer(schemaManipulator.addTwoFieldsFilter(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_two_fields_filter",
-                DATA_SOURCE_URI)));
+                DATA_SOURCE_URI);
+
+        // add two fields filter to domain schema
+        schemaManipulator.addTwoFieldsFilter(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void addDataIslands() {
         appLogger.info("Start to create domain with three data islands on the server...");
-        createDomainOnServer(schemaManipulator.addDataIslands(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_three_data_islands",
-                DATA_SOURCE_URI)));
+                DATA_SOURCE_URI);
+
+        // add two more data islands to domain schema
+        schemaManipulator.addDataIslands(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
     }
 
     public void addFieldsWithRestructuring() {
         appLogger.info("Start to add fields to domain presentation with restructurng...");
-        createDomainOnServer(schemaManipulator.addFieldsWithRestructuring(InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
+        // create base domain
+        ClientDomain domain = InitDomainHelper.buildDomain(configuration.getBaseRepositoryFolder(),
                 "Base_domain_with_fields_with_restructuring",
-                DATA_SOURCE_URI)));
+                DATA_SOURCE_URI);
+
+        // add fields with restructuring to domain schema
+        schemaManipulator.addFieldsWithRestructuring(domain.getSchema());
+
+        // save domain on the server
+        saveDomain(domain);
 
     }
 
-    private void createDomainOnServer(ClientDomain domain) {
+    private void saveDomain(ClientDomain domain) {
         OperationResult<ClientDomain> operationResult = session
                 .domainService()
                 .domain(configuration.getBaseRepositoryFolder())
