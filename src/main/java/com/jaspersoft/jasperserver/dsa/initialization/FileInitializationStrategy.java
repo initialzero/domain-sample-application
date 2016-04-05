@@ -2,6 +2,7 @@ package com.jaspersoft.jasperserver.dsa.initialization;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -25,9 +26,10 @@ public class FileInitializationStrategy implements InitializationStrategy {
         try {
             String readLine = reader.readLine();
             appLogger.info("The application is configured from " + readLine + " file");
-            properties.load(this.getClass().getClassLoader().getResourceAsStream(readLine));
+            properties.load(new FileInputStream(readLine));
         } catch (Exception e) {
             appLogger.error("Error reading of file ", e);
+            System.exit(1);
         }
         return new AppConfiguration(properties);
     }

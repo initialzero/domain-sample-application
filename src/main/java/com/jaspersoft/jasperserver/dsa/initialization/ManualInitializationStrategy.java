@@ -28,8 +28,6 @@ public class ManualInitializationStrategy implements InitializationStrategy {
             for (String initParam : initParams) {
                 consoleLogger.info("Enter " + initParam + ":");
                 String readLine = reader.readLine();
-                appLogger.info("Application init parameters are:");
-                appLogger.info(initParam + " : " + readLine);
                 properties.setProperty(initParam, readLine);
             }
         } catch (IOException e) {
