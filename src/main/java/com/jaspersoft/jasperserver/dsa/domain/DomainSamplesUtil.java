@@ -46,9 +46,10 @@ public class DomainSamplesUtil {
         appLogger.info("Create demonstration resources (folders) on the server");
 
         ClientFolder folder = new ClientFolder();
+        String label = configuration.getBaseRepositoryFolder().substring(configuration.getBaseRepositoryFolder().lastIndexOf("/") + 1);
         folder
                 .setUri(configuration.getBaseRepositoryFolder())
-                .setLabel("DomainDemo")
+                .setLabel(label)
                 .setDescription("Test folder")
                 .setVersion(0);
 
