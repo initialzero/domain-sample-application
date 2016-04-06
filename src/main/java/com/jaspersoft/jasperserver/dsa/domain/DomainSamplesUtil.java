@@ -7,6 +7,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
 import com.jaspersoft.jasperserver.jaxrs.client.core.JasperserverRestClient;
 import com.jaspersoft.jasperserver.jaxrs.client.core.RestClientConfiguration;
 import com.jaspersoft.jasperserver.jaxrs.client.core.Session;
+import com.jaspersoft.jasperserver.jaxrs.client.core.exceptions.AuthenticationFailedException;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import org.apache.log4j.Logger;
 
@@ -30,15 +31,20 @@ public class DomainSamplesUtil {
     }
 
     public void initSession() {
-        appLogger.info("Authentication on JasperReportsServer");
+        appLogger.info("Authentication on JasperReportsServer " + configuration.getUri());
 
         // init JavaRestClient and log in on the JasperReportsServer
         RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(configuration.getProperties());
         JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
-        session = client.authenticate(configuration.getUsername(),
-                configuration.getPassword());
-        if (session == null){
-            appLogger.warn("Authentication failed");
+
+        try {
+            session = client.authenticate(configuration.getUsername(),
+                    configuration.getPassword());
+            if (session == null) {
+                throw new AuthenticationFailedException();
+            }
+        } catch (Exception e) {
+            appLogger.warn("Authentication failed " + e.getCause());
             System.exit(-1);
         }
         appLogger.info("Authentication is successful");

@@ -22,7 +22,7 @@ public class Application {
         appLogger.info("Initialization of application");
 
         // Initialization and configuration of application
-        consoleLogger.info("Choose way of configuration (file or manual) [f/m]:");
+        consoleLogger.info("Choose way of configuration (file or manual) [f/m]: ");
         InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar(new Character[]{'f', 'm'}));
 
         DomainSamplesUtil domainSamplesUtil = new DomainSamplesUtil(strategy.initConfiguration());
@@ -65,7 +65,7 @@ public class Application {
         domainSamplesUtil.addFieldsWithRestructuring();
 
         // Finish executing application
-        consoleLogger.info("Delete demonstration resources?[y/n]:");
+        consoleLogger.info("Delete demonstration resources?[y/n]: ");
 
         domainSamplesUtil.deleteBaseFolder(ConsoleUtil.readChar(new Character[]{'y', 'n'}) == 'y');
         domainSamplesUtil.stopApplication();

@@ -18,7 +18,7 @@ public class ConsoleUtil {
     private static Logger consoleLogger = Logger.getLogger("consoleLogger");
 
     public static Character readChar(Character[] validValues) {
-        Character in = null;
+        Character in;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String stringIn;
         while (true) {
@@ -30,7 +30,7 @@ public class ConsoleUtil {
                 }
                 consoleLogger.warn("Value is incorrect, please, enter valid value:");
             } catch (IOException e) {
-                e.printStackTrace();
+                consoleLogger.warn("Error of reading from console", e);
             }
         }
         return in;

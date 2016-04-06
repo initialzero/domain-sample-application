@@ -37,35 +37,33 @@ Domain sample application allow you set this parameters from command line or ent
 In case of manual configuration the application suggest to enter each parameter separate, here is example of work the application in this case:
 ```
 [INFO] Initialization of application
-[INFO] Choose way of configuration (file or manual) [f/m]:
-m
+[INFO] Choose way of configuration (file or manual) [f/m]: m
 [INFO] The application is configured manually
-[INFO] Enter url:
-http://localhost:9080/jrs-pro-feature-domain-designer-schema-conversion
-[INFO] Enter username:
-superuser
-[INFO] Enter password:
-superuser
-[INFO] Enter baseFolder:
-/public/demo
-[INFO] Authentication on JasperReportsServer
+[INFO] Enter url: http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+[INFO] Enter username: superuser
+[INFO] Enter password: superuser
+[INFO] Enter baseFolder: /public/demo
+[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+
 ...
 ```
 You can specify init parameters in `property` file and set path to this file for application:
 ```
 [INFO] Initialization of application
-[INFO] Choose way of configuration (file or manual) [f/m]:
-f
+[INFO] Choose way of configuration (file or manual) [f/m]: f
+
 [INFO] The application is configured from file
-[INFO] Enter path to configuration file:
-D:\config.properties
+[INFO] Enter path to configuration file: D:\config.properties
+
 [INFO] The application is configured from D:\config.properties file
-[INFO] Authentication on JasperReportsServer
+[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+
+...
 
 ```
  Here is example of `config.properties` file:
  ```
- url=http://localhost:9080/jrs-pro-feature-domain-designer-schema-conversion
+ url=http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
  username=superuser
  password=superuser
  baseFolder=/public/DomainDemo

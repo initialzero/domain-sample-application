@@ -26,12 +26,12 @@ public class ManualInitializationStrategy implements InitializationStrategy {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
             for (String initParam : initParams) {
-                consoleLogger.info("Enter " + initParam + ":");
+                consoleLogger.info("Enter " + initParam + ": ");
                 String readLine = reader.readLine();
                 properties.setProperty(initParam, readLine);
             }
         } catch (IOException e) {
-            appLogger.error("Error reading of parameter from console", e);
+            appLogger.error("Error reading of parameter from console" + e.getCause());
             System.exit(1);
         }
         return new AppConfiguration(properties);
