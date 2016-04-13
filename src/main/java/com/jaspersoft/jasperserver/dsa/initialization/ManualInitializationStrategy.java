@@ -1,9 +1,11 @@
 package com.jaspersoft.jasperserver.dsa.initialization;
 
+import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 /**
  * <p/>
@@ -14,20 +16,24 @@ import java.util.Properties;
  * @see
  */
 public class ManualInitializationStrategy implements InitializationStrategy {
-    public Properties initConfiguration() {
+    private static final Logger appLogger = Logger.getLogger(ManualInitializationStrategy.class);
+    private static final Logger consoleLogger = Logger.getLogger("consoleLogger");
+
+    public AppConfiguration initConfiguration() {
         Properties properties = new Properties();
-        String[] initParams = {"uri", "username", "password", "baseFolder"};
+        String[] initParams = {"url", "username", "password", "baseFolder"};
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
             for (String initParam : initParams) {
-                System.out.println("Enter " + initParam + ":");
+                consoleLogger.info("Enter " + initParam + ": ");
                 String readLine = reader.readLine();
                 properties.setProperty(initParam, readLine);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            appLogger.error("Error reading of parameter from console" + e.getCause());
+            System.exit(1);
         }
-        return properties;
+        return new AppConfiguration(properties);
     }
 }
