@@ -21,7 +21,7 @@ public class ManualInitializationStrategy implements InitializationStrategy {
 
     public AppConfiguration initConfiguration() {
         Properties properties = new Properties();
-        String[] initParams = {"url", "username", "password", "baseFolder"};
+        String[] initParams = {"url", "username", "password", "reportUri"};
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {

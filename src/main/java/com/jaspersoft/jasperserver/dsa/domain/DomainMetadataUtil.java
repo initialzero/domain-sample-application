@@ -32,10 +32,8 @@ public class DomainMetadataUtil {
 
         // init JavaRestClient and log in on the JasperReportsServer
         RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(configuration.getProperties());
-        restClientConfiguration.setHandleErrors(false);
-        JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
-
         try {
+            JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
             session = client.authenticate(configuration.getUsername(),
                     configuration.getPassword());
             if (session == null) {
@@ -45,6 +43,7 @@ public class DomainMetadataUtil {
             appLogger.warn("Authentication failed " + e.getCause());
             System.exit(-1);
         }
+        restClientConfiguration.setHandleErrors(false);
         appLogger.info("Authentication is successful");
     }
 
@@ -52,15 +51,16 @@ public class DomainMetadataUtil {
         appLogger.info("Fetch metadata for " + domainUri);
         DataIslandsContainer metadata = null;
         ClientDomain domain = new ClientDomain().setUri(domainUri);
+
+        OperationResult<DataIslandsContainer> operationResult = session.
+                dataDiscoveryService().
+                domainContext().
+                fetchMetadataByContext(domain);
         try {
-            OperationResult<DataIslandsContainer> operationResult = session.
-                    dataDiscoveryService().
-                    domainContext().
-                    fetchMetadataByContext(domain);
             metadata = operationResult.getEntity();
             appLogger.info("Metadata was fetched successfully");
         } catch (Exception e) {
-            appLogger.warn("Getting metadata failed " + e.getCause());
+            appLogger.warn("Getting metadata failed (" + e.getClass().getSimpleName() + ")");
             stopApplication();
             System.exit(1);
         }
