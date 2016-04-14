@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jaspersoft</groupId>
-    <artifactId>domain-sample-application</artifactId>
+    <artifactId>domain-query-sample-application</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -56,7 +56,6 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <!-- exclude junit, we need runtime dependency only -->
                             <includeScope>runtime</includeScope>
                             <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
                         </configuration>

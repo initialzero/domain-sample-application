@@ -1,6 +1,7 @@
 package com.jaspersoft.jasperserver.dsa;
 
 import com.jaspersoft.jasperserver.dsa.common.ConsoleUtil;
+import com.jaspersoft.jasperserver.dsa.domain.DomainMetadataUtil;
 import com.jaspersoft.jasperserver.dsa.initialization.InitializationStrategy;
 import com.jaspersoft.jasperserver.dsa.initialization.InitializationStrategyFactory;
 import org.apache.log4j.Logger;
@@ -24,8 +25,9 @@ public class Application {
         consoleLogger.info("Choose way of configuration (file or manual) [f/m]: ");
         InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar(new Character[]{'f', 'm'}));
 
-//        DomainSamplesUtil domainSamplesUtil = new DomainSamplesUtil(strategy.initConfiguration());
-//        domainSamplesUtil.initSession();
-        // domainSamplesUtil.stopApplication();
+        DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(strategy.initConfiguration());
+        domainMetadataUtil.initSession();
+        domainMetadataUtil.fetchMetadata("/temp/supermartDomain");
+        domainMetadataUtil.stopApplication();
     }
 }
