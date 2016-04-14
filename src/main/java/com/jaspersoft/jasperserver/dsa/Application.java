@@ -29,7 +29,7 @@ public class Application {
         AppConfiguration configuration = strategy.initConfiguration();
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
         domainMetadataUtil.initSession();
-        domainMetadataUtil.fetchMetadata(configuration.getReportUri());
+        domainMetadataUtil.fetchMetadata(configuration.getDomainUri());
         domainMetadataUtil.stopApplication();
     }
 }

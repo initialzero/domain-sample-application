@@ -17,8 +17,7 @@ public class AppConfiguration {
     protected String uri;
     protected String username;
     protected String password;
-
-    protected String reportUri;
+    protected String domainUri;
 
     protected Properties properties;
     public AppConfiguration(Properties properties) {
@@ -27,7 +26,7 @@ public class AppConfiguration {
         this.uri = properties.getProperty("url");
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
-        this.reportUri = properties.getProperty("reportUri");
+        this.domainUri = properties.getProperty("domainUri");
     }
 
     public String getBaseRepositoryFolder() {
@@ -51,7 +50,7 @@ public class AppConfiguration {
         return properties;
     }
 
-    public String getReportUri() {
-        return reportUri;
+    public String getDomainUri() {
+        return domainUri;
     }
 }
