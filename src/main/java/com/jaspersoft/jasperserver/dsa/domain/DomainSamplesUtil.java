@@ -35,18 +35,19 @@ public class DomainSamplesUtil {
 
         // init JavaRestClient and log in on the JasperReportsServer
         RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(configuration.getProperties());
-        JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
-
         try {
+            JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
             session = client.authenticate(configuration.getUsername(),
                     configuration.getPassword());
             if (session == null) {
                 throw new AuthenticationFailedException();
             }
         } catch (Exception e) {
-            appLogger.warn("Authentication failed " + e.getCause());
+            appLogger.warn("Authentication failed " , e);
             System.exit(-1);
         }
+        // set property of RestClient not to handle negative responses to get
+        restClientConfiguration.setHandleErrors(false);
         appLogger.info("Authentication is successful");
     }
 
