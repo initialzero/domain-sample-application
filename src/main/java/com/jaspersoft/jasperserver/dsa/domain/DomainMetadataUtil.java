@@ -1,7 +1,7 @@
 package com.jaspersoft.jasperserver.dsa.domain;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
-import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
+import com.jaspersoft.jasperserver.dto.resources.ClientSemanticLayerDataSource;
 import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.jaxrs.client.core.JasperserverRestClient;
 import com.jaspersoft.jasperserver.jaxrs.client.core.RestClientConfiguration;
@@ -50,7 +50,7 @@ public class DomainMetadataUtil {
     public DataIslandsContainer fetchMetadata(String domainUri) {
         appLogger.info("Fetch metadata for " + domainUri);
         DataIslandsContainer metadata = null;
-        ClientDomain domain = new ClientDomain().setUri(domainUri);
+        ClientSemanticLayerDataSource domain = new ClientSemanticLayerDataSource().setUri(domainUri);
 
         OperationResult<DataIslandsContainer> operationResult = session.
                 dataDiscoveryService().
