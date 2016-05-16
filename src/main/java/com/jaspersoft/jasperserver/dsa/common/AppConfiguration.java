@@ -1,6 +1,11 @@
 package com.jaspersoft.jasperserver.dsa.common;
 
+import com.jaspersoft.jasperserver.jaxrs.client.core.JasperserverRestClient;
+import com.jaspersoft.jasperserver.jaxrs.client.core.RestClientConfiguration;
+import com.jaspersoft.jasperserver.jaxrs.client.core.Session;
+import com.jaspersoft.jasperserver.jaxrs.client.core.exceptions.AuthenticationFailedException;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 /**
  * <p/>
@@ -12,12 +17,13 @@ import java.util.Properties;
  */
 public class AppConfiguration {
 
+    private static final Logger appLogger = Logger.getLogger(AppConfiguration.class);
 
     protected String baseRepositoryFolder;
     protected String uri;
     protected String username;
     protected String password;
-    protected String domainUri;
+    protected Session session;
 
     protected Properties properties;
     public AppConfiguration(Properties properties) {
@@ -26,7 +32,6 @@ public class AppConfiguration {
         this.uri = properties.getProperty("url");
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
-        this.domainUri = properties.getProperty("domainUri");
     }
 
     public String getBaseRepositoryFolder() {
@@ -50,7 +55,40 @@ public class AppConfiguration {
         return properties;
     }
 
-    public String getDomainUri() {
-        return domainUri;
+    public Session getSession() {
+        return session;
     }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
+
+    public void initSession() {
+        appLogger.info("Authentication on JasperReportsServer " + uri);
+
+        // init JavaRestClient and log in on the JasperReportsServer
+        RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(properties);
+        try {
+            JasperserverRestClient client = new JasperserverRestClient(restClientConfiguration);
+            session = client.authenticate(username,
+                    password);
+            if (session == null) {
+                throw new AuthenticationFailedException();
+            }
+        } catch (Exception e) {
+            appLogger.warn("Authentication failed " + e.getCause());
+            System.exit(-1);
+        }
+        restClientConfiguration.setHandleErrors(false);
+        appLogger.info("Authentication is successful");
+    }
+
+    public  void stopApplication() {
+        appLogger.info("Logout on JasperReportsServer");
+        session.logout();
+        appLogger.info("Logout is successful");
+
+    }
+
 }
