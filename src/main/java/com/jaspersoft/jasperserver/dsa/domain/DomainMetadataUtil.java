@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 public class DomainMetadataUtil {
     private static final Logger appLogger = Logger.getLogger(DomainMetadataUtil.class);
     private AppConfiguration configuration;
+    private DataIslandsContainer metadata;
 
     public DomainMetadataUtil(AppConfiguration configuration) {
         this.configuration = configuration;
@@ -24,8 +25,11 @@ public class DomainMetadataUtil {
 
 
     public DataIslandsContainer fetchMetadata(String domainUri) {
+        if (metadata != null) {
+            return metadata;
+        }
         appLogger.info("Fetch metadata for " + domainUri);
-        DataIslandsContainer metadata = null;
+        metadata = null;
         ClientSemanticLayerDataSource domain = new ClientSemanticLayerDataSource().setUri(domainUri);
 
         OperationResult<DataIslandsContainer> operationResult = configuration.getSession().

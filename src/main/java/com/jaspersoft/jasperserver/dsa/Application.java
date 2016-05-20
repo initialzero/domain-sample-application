@@ -5,6 +5,8 @@ import com.jaspersoft.jasperserver.dsa.common.ConsoleUtil;
 import com.jaspersoft.jasperserver.dsa.initialization.InitializationStrategy;
 import com.jaspersoft.jasperserver.dsa.initialization.InitializationStrategyFactory;
 import com.jaspersoft.jasperserver.dsa.querexecution.FlatQueryExecutor;
+import com.jaspersoft.jasperserver.dsa.querexecution.MultiAxesQueryExecutor;
+import com.jaspersoft.jasperserver.dsa.querexecution.MultiLevelQueryExecutor;
 import com.jaspersoft.jasperserver.dsa.querexecution.ProvidedQueryExecutor;
 import com.jaspersoft.jasperserver.dsa.querexecution.QueryExecutor;
 import org.apache.log4j.Logger;
@@ -31,11 +33,16 @@ public class Application {
         configuration.initSession();
 
         QueryExecutor providedQueryExecutor = new ProvidedQueryExecutor(configuration);
-        providedQueryExecutor.executeQuery();
+        providedQueryExecutor.executeQuery().saveQueryExecutionResults("providedQuery.json");
 
-        FlatQueryExecutor flatQueryExecutor = new FlatQueryExecutor(configuration);
-        flatQueryExecutor.retrieveMetadata().buildQuery().executeQuery();
+        QueryExecutor flatQueryExecutor = new FlatQueryExecutor(configuration);
+        flatQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("flatQuery.json");
 
+        QueryExecutor multiLevelQueryExecutor = new MultiLevelQueryExecutor(configuration);
+        multiLevelQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("multiLevelQuery.json");
+
+        QueryExecutor multiAxesQueryExecutor = new MultiAxesQueryExecutor(configuration);
+        multiAxesQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("multiAxesQuery.json");
 
         configuration.stopApplication();
     }

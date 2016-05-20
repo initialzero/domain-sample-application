@@ -25,6 +25,26 @@ public class AppConfiguration {
     protected String password;
     protected Session session;
 
+    public String getResponseFormat() {
+        return responseFormat;
+    }
+
+    public void setResponseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
+    }
+
+    protected String responseFormat;
+
+    public String getResultDirectory() {
+        return resultDirectory;
+    }
+
+    public void setResultDirectory(String resultDirectory) {
+        this.resultDirectory = resultDirectory;
+    }
+
+    protected String resultDirectory;
+
     protected Properties properties;
     public AppConfiguration(Properties properties) {
         this.properties = properties;
@@ -32,6 +52,7 @@ public class AppConfiguration {
         this.uri = properties.getProperty("url");
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
+        this.resultDirectory = properties.getProperty("resultDirectory");
     }
 
     public String getBaseRepositoryFolder() {

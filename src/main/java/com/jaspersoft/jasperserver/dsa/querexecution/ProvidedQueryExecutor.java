@@ -3,6 +3,8 @@ package com.jaspersoft.jasperserver.dsa.querexecution;
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dto.executions.ClientProvidedQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
+import com.jaspersoft.jasperserver.dto.executions.ClientQueryResultData;
+import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import org.apache.log4j.Logger;
 
 /**
@@ -38,9 +40,20 @@ public class ProvidedQueryExecutor extends QueryExecutor {
                 setDataSourceUri(adhocViewUri).
                 setParams(new ClientQueryParams().setOffset(new int[]{0}).setPageSize(new int[]{100}));
 
-        this.operationResult = configuration.getSession().
+        QueryExecutionAdapter<ClientQueryResultData> queryExecutionAdapter = configuration.getSession().
                 queryExecutionService().
-                providedQuery().
+                providedQuery();
+
+        if (configuration.getResponseFormat() != null) {
+            if (configuration.getResponseFormat().toLowerCase().equals("xml")) {
+                queryExecutionAdapter = queryExecutionAdapter.asXml();
+            }
+            if (configuration.getResponseFormat().toLowerCase().equals("json")) {
+                queryExecutionAdapter = queryExecutionAdapter.asJson();
+            }
+        }
+
+        this.operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {
             appLogger.info("Provided query was executed successfully");
@@ -50,8 +63,4 @@ public class ProvidedQueryExecutor extends QueryExecutor {
         return this;
     }
 
-    @Override
-    public void saveQueryExecutionResults() {
-
-    }
 }
