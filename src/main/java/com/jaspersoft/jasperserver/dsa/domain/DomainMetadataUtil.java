@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 public class DomainMetadataUtil {
     private static final Logger appLogger = Logger.getLogger(DomainMetadataUtil.class);
     private AppConfiguration configuration;
-    private DataIslandsContainer metadata;
+    private static DataIslandsContainer metadata;
 
     public DomainMetadataUtil(AppConfiguration configuration) {
         this.configuration = configuration;

@@ -12,7 +12,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 /**
  * <p/>
@@ -29,7 +33,6 @@ public abstract class QueryExecutor {
     protected DataIslandsContainer dataIslandsContainer;
     protected ClientQuery query;
     protected OperationResult<? extends ClientQueryResultData> operationResult;
-    protected ClientQueryResultData queryResultData;
     protected File resultDir;
 
     public abstract QueryExecutor retrieveMetadata();
@@ -57,24 +60,51 @@ public abstract class QueryExecutor {
         }
     }
 
-    protected PresentationGroupElement findGroupElement(DataIslandsContainer container, String elementName) {
-        return (PresentationGroupElement) this.findElement(container.getDataIslands(), elementName);
+    protected PresentationSingleElement extractPresentationSingleElement(DataIslandsContainer container, String type) {
+        return extractPresentationSingleElements(container, type, 1).get(0);
     }
 
-    protected PresentationGroupElement findGroupElement(PresentationGroupElement container, String elementName) {
-        return (PresentationGroupElement) this.findElement(container.getElements(), elementName);
-    }
-
-    protected PresentationSingleElement findSingleElement(PresentationGroupElement groupElement, String elementName) {
-        return (PresentationSingleElement) this.findElement(groupElement.getElements(), elementName);
-    }
-
-    protected PresentationElement findElement(List<? extends PresentationElement> presentationElements, String elementName) {
-        for (PresentationElement element : presentationElements) {
-            if (element.getName().equals(elementName)) {
-                return element;
-            }
+    protected PresentationSingleElement findSingleElement(PresentationElement presentationElement) {
+        if (presentationElement instanceof PresentationSingleElement) {
+            return (PresentationSingleElement) presentationElement;
+        }
+        List<PresentationElement> elements = ((PresentationGroupElement) presentationElement).getElements();
+        for (PresentationElement element : elements) {
+            return findSingleElement(element);
         }
         return null;
     }
+
+    protected List<PresentationSingleElement> extractPresentationSingleElements(DataIslandsContainer container, String type, int num) {
+        List<PresentationGroupElement> dataIslands = container.getDataIslands();
+        List<PresentationSingleElement> singleElements = new ArrayList<PresentationSingleElement>(num);
+        for (PresentationGroupElement dataIsland : dataIslands) {
+            singleElements.addAll(findSingleElementsByType(dataIsland, type, num));
+            if (singleElements.size() == num) {
+                return singleElements;
+            }
+        }
+        return singleElements;
+    }
+
+    protected List<PresentationSingleElement> findSingleElementsByType(PresentationElement presentationElement, String type, int num) {
+        if (presentationElement instanceof PresentationSingleElement) {
+
+            if (((PresentationSingleElement) presentationElement).getType().equals(type)) {
+                return asList((PresentationSingleElement) presentationElement);
+            }
+            return Collections.emptyList();
+        }
+        List<PresentationElement> elements = ((PresentationGroupElement) presentationElement).getElements();
+        List<PresentationSingleElement> resultElements = new ArrayList<PresentationSingleElement>(num);
+        for (PresentationElement element : elements) {
+            List<PresentationSingleElement> singleElementsByType = findSingleElementsByType(element, type, num);
+            resultElements.addAll(singleElementsByType);
+            if (resultElements.size() == num) {
+                return resultElements;
+            }
+        }
+        return resultElements;
+    }
+
 }

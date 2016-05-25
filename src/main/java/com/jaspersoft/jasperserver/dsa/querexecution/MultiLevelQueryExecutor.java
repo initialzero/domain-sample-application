@@ -5,22 +5,17 @@ import com.jaspersoft.jasperserver.dsa.domain.DomainMetadataUtil;
 import com.jaspersoft.jasperserver.dto.adhoc.datasource.ClientDataSourceField;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientMultiLevelQuery;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQueryBuilder;
-import com.jaspersoft.jasperserver.dto.adhoc.query.el.ClientVariable;
-import com.jaspersoft.jasperserver.dto.adhoc.query.el.literal.ClientString;
-import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.comparison.ClientEquals;
 import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryField;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
-import com.jaspersoft.jasperserver.dto.resources.domain.PresentationElement;
-import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.log4j.Logger;
 
+import static com.jaspersoft.jasperserver.dto.adhoc.query.ClientAggregates.countAll;
 import static com.jaspersoft.jasperserver.dto.adhoc.query.MultiLevelQueryBuilder.select;
+import static java.util.Collections.singletonList;
 
 /**
  * <p/>
@@ -49,29 +44,15 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build multi level query for domain " + supermartDpmainUri);
-        PresentationGroupElement expJoin = findGroupElement(dataIslandsContainer, "exp_join");
-        PresentationGroupElement table = (PresentationGroupElement) expJoin.
-                getElements().
-                get(0);
-        List<PresentationElement> fields = table.getElements();
-        PresentationGroupElement groupElement = (PresentationGroupElement) fields.get(0);
-
-        List<PresentationElement> elements = groupElement.getElements();
-        List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
-        for (PresentationElement element : elements) {
-            queryFields.add(new ClientQueryField().
-                    setDataSourceField(new ClientDataSourceField().
-                            setName((((PresentationSingleElement) element).getHierarchicalName()))));
-        }
-
-        ClientEquals clientEquals = new ClientEquals();
-        clientEquals.
-                getOperands().add(new ClientVariable(findSingleElement(groupElement, "account__account_type").getName()));
-        clientEquals.
-                getOperands().add(new ClientString("Expense"));
-
+        PresentationSingleElement singleElement = extractPresentationSingleElement(dataIslandsContainer, "java.lang.Double");
+        ClientQueryField queryField = new ClientQueryField().
+                //setId!!!
+                        setId("Sum1").
+                setDataSourceField(new ClientDataSourceField().
+                        setName(singleElement.getHierarchicalName()).
+                        setType(singleElement.getType()));
         ClientQueryBuilder qb =
-                select(queryFields).where(clientEquals);
+                select(singletonList(queryField), singletonList(countAll(queryField)));
 
         this.query = qb.build().setLimit(100);
 

@@ -9,9 +9,9 @@ import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryLevel;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
-import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 import static com.jaspersoft.jasperserver.dto.adhoc.query.ClientAggregates.sum;
@@ -46,27 +46,21 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build multi axes query for domain " + supermartDpmainUri);
-        PresentationGroupElement salesJoinGroupElement = findGroupElement(dataIslandsContainer, "sales_join");
-        PresentationGroupElement salesFactAllGroupElement = findGroupElement(salesJoinGroupElement, "sales_fact_ALL");
-        PresentationSingleElement salesFactAllStoreSales2013Element = findSingleElement(salesFactAllGroupElement, "sales_fact_ALL__store_sales_2013");
+        List<PresentationSingleElement> presentationSingleElements = extractPresentationSingleElements(dataIslandsContainer, "java.lang.Double", 2);
 
         ClientDataSourceField salesDSField = new ClientDataSourceField().
-                setName(salesFactAllStoreSales2013Element.getHierarchicalName()).
-                setType(salesFactAllStoreSales2013Element.getType());
-
-        PresentationGroupElement salesStoreGroupElement = findGroupElement(salesFactAllGroupElement, "sales__store");
-        PresentationGroupElement salesStoreRegionGroupElement = findGroupElement(salesStoreGroupElement, "sales__store__region");
-        PresentationSingleElement salesStoreRegionSalesCityElement = findSingleElement(salesStoreRegionGroupElement, "sales__store__region__sales_city");
+                setName(presentationSingleElements.get(0).getHierarchicalName()).
+                setType(presentationSingleElements.get(0).getType());
 
         ClientQueryLevel cityLevel = (ClientQueryLevel) new ClientQueryLevel().setId("city1").
                 setDataSourceField(new ClientDataSourceField().
-                        setName(salesStoreRegionSalesCityElement.getHierarchicalName()).
-                        setType(salesStoreRegionSalesCityElement.getType()));
+                        setName(presentationSingleElements.get(1).getHierarchicalName()).
+                        setType(presentationSingleElements.get(1).getType()));
 
         MultiAxisQueryBuilder qb = MultiAxisQueryBuilder.select(sum(salesDSField).setId("Sumsales1"))
                 .groupByColumns(aggRef())
                 .groupByRows(cityLevel)
-                .orderBy(ascByMember(singletonList(salesFactAllStoreSales2013Element.getHierarchicalName())));
+                .orderBy(ascByMember(singletonList(presentationSingleElements.get(1).getHierarchicalName())));
 
         this.query = qb.build().setLimit(100);
         return this;
