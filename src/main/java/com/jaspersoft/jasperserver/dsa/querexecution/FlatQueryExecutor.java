@@ -11,7 +11,8 @@ import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryExecution
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
-import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -41,13 +42,18 @@ public class FlatQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build flat query for domain " + supermartDpmainUri);
-        PresentationSingleElement singleElement = findSingleElement(dataIslandsContainer.getDataIslands().get(0));
-        ClientQueryField clientQueryField = new ClientQueryField().
-                setDataSourceField(new ClientDataSourceField().
-                        setName(((singleElement).getHierarchicalName())));
+        List<PresentationSingleElement> singleElements = findSingleElement(dataIslandsContainer.getDataIslands().get(0), 3);
+        List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
+        for (PresentationSingleElement singleElement : singleElements) {
+            ClientQueryField clientQueryField = new ClientQueryField().
+                    setDataSourceField(new ClientDataSourceField().
+                            setName(((singleElement).getHierarchicalName())));
+            queryFields.add(clientQueryField);
+        }
+
         this.query =
                 new ClientMultiLevelQuery().
-                setSelect(new ClientSelect().setFields(Collections.singletonList(clientQueryField))).setLimit(1000);
+                setSelect(new ClientSelect().setFields(queryFields)).setLimit(1000);
 
         return this;
     }

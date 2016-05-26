@@ -60,26 +60,37 @@ public abstract class QueryExecutor {
         }
     }
 
-    protected PresentationSingleElement extractPresentationSingleElement(DataIslandsContainer container, String type) {
-        return extractPresentationSingleElements(container, type, 1).get(0);
-    }
 
-    protected PresentationSingleElement findSingleElement(PresentationElement presentationElement) {
+    protected List<PresentationSingleElement> findSingleElement(PresentationElement presentationElement, int num) {
         if (presentationElement instanceof PresentationSingleElement) {
-            return (PresentationSingleElement) presentationElement;
+            return asList((PresentationSingleElement) presentationElement);
         }
         List<PresentationElement> elements = ((PresentationGroupElement) presentationElement).getElements();
+        List<PresentationSingleElement> resulrList = new ArrayList<PresentationSingleElement>(num);
         for (PresentationElement element : elements) {
-            return findSingleElement(element);
+            List<PresentationSingleElement> singleElementList = findSingleElement(element, num);
+            if (singleElementList != null) {
+                resulrList.addAll(singleElementList);
+            }
+            if (resulrList.size() == num) {
+                return resulrList;
+            }
         }
         return null;
+    }
+
+    protected PresentationSingleElement extractPresentationSingleElement(DataIslandsContainer container, String type) {
+        return extractPresentationSingleElements(container, type, 1).get(0);
     }
 
     protected List<PresentationSingleElement> extractPresentationSingleElements(DataIslandsContainer container, String type, int num) {
         List<PresentationGroupElement> dataIslands = container.getDataIslands();
         List<PresentationSingleElement> singleElements = new ArrayList<PresentationSingleElement>(num);
         for (PresentationGroupElement dataIsland : dataIslands) {
-            singleElements.addAll(findSingleElementsByType(dataIsland, type, num));
+            List<PresentationSingleElement> singleElementsByType = findSingleElementsByType(dataIsland, type, num);
+            if (singleElementsByType != null) {
+                singleElements.addAll(singleElementsByType);
+            }
             if (singleElements.size() == num) {
                 return singleElements;
             }
