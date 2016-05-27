@@ -16,7 +16,7 @@ git clone https://github.com/Jaspersoft/domain-sample-application.git
 
 or download source code directly from the main page of repository `https://github.com/Jaspersoft/domain-sample-application`
 
-and switch to `develop-domainQuerySampleApp` branch
+and switch to `develop-domainQueryExecutionSampleApp` branch
 ```java
 git checkout develop-domainQuerySampleApp
 ```
