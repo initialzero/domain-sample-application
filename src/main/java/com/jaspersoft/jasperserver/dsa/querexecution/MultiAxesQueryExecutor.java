@@ -33,7 +33,7 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
 
 
     public MultiAxesQueryExecutor(AppConfiguration configuration) {
-        this.configuration = configuration;
+        super(configuration);
     }
 
     @Override
@@ -46,20 +46,23 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build multi axes query for domain " + supermartDpmainUri);
+
+        // find elements for query in retrieved metadata
         List<PresentationSingleElement> presentationSingleElements = extractPresentationSingleElements(dataIslandsContainer, "java.lang.Double", 2);
 
-        ClientDataSourceField salesDSField = new ClientDataSourceField().
+        // use found elements for building multi level query with sum by found element, group by rows and order by field
+        ClientDataSourceField dataSourceField = new ClientDataSourceField().
                 setName(presentationSingleElements.get(0).getHierarchicalName()).
                 setType(presentationSingleElements.get(0).getType());
 
-        ClientQueryLevel cityLevel = (ClientQueryLevel) new ClientQueryLevel().setId("city1").
+        ClientQueryLevel queryLevel = (ClientQueryLevel) new ClientQueryLevel().setId("Id1").
                 setDataSourceField(new ClientDataSourceField().
                         setName(presentationSingleElements.get(1).getHierarchicalName()).
                         setType(presentationSingleElements.get(1).getType()));
 
-        MultiAxisQueryBuilder qb = MultiAxisQueryBuilder.select(sum(salesDSField).setId("Sumsales1"))
+        MultiAxisQueryBuilder qb = MultiAxisQueryBuilder.select(sum(dataSourceField).setId("Sums1"))
                 .groupByColumns(aggRef())
-                .groupByRows(cityLevel)
+                .groupByRows(queryLevel)
                 .orderBy(ascByMember(singletonList(presentationSingleElements.get(1).getHierarchicalName())));
 
         this.query = qb.build().setLimit(100);
@@ -85,6 +88,8 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
                 queryExecutionAdapter = queryExecutionAdapter.asJson();
             }
         }
+
+        // send request to server ade get result dataset
         operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {

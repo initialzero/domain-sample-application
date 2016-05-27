@@ -20,7 +20,25 @@ and switch to `develop-domainQuerySampleApp` branch
 ```java
 git checkout develop-domainQuerySampleApp
 ```
-2. Run biuld of application form command line with goal:
+
+Also you need to do temporary additional steps to build Sample application:
+
+1. clone JRSRestClient form GitHub
+```java
+git clone https://github.com/Jaspersoft/jrs-rest-java-client.git
+```
+2. checkout develop-domainQuery branch
+```java
+git checkout branch develop-domainQuery
+```
+3. run Maven goal "install"
+```java
+mvn install
+```
+These steps mean that you have built `JasperReportsServer-CE` and `JasperReportsServer-PRO` version `6.2.0-adhoc-rest-api-SNAPSHOT` (from  `amber-ce-adhoc-rest-api` SVN branch) 
+These steps should be removed after Metadata API on JRS will be released. 
+
+2. Run build of application form command line with goal:
 ```java
 mvn package
 ```
@@ -35,6 +53,8 @@ To use the application you should specify  set of parameters such as:
 - `uri` -  URI of JasperReportsServer;
 - `username` and `password` - login and password of your account on server;
 - `domainUri` - URI of domain which metadata will be retrieved.
+- `resultDirectory` - local directory where files with result datasets will be saved
+- `responseFormat` - 
 
 Sample application allow you set this parameters from command line or enter path to `properties` file.
 
@@ -71,5 +91,6 @@ You can specify init parameters in `property` file and set path to this file for
  username=superuser
  password=superuser
  domainUri=/public/Samples/Domains/supermartDomain
-
+ resultDirectory=resultData
+ responseFormat=json
  ```

@@ -31,7 +31,7 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
 
 
     public MultiLevelQueryExecutor(AppConfiguration configuration) {
-        this.configuration = configuration;
+        super(configuration);
     }
 
     @Override
@@ -44,10 +44,12 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build multi level query for domain " + supermartDpmainUri);
+        // find element for query in retrieved metadata
         PresentationSingleElement singleElement = extractPresentationSingleElement(dataIslandsContainer, "java.lang.Double");
+
+        // use found element for building multi level query with sum by found element
         ClientQueryField queryField = new ClientQueryField().
-                //setId!!!
-                        setId("Sum1").
+                setId("Sum1").
                 setDataSourceField(new ClientDataSourceField().
                         setName(singleElement.getHierarchicalName()).
                         setType(singleElement.getType()));
@@ -78,6 +80,8 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
                 queryExecutionAdapter = queryExecutionAdapter.asJson();
             }
         }
+
+        // send request to server ade get result dataset
         operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {

@@ -32,6 +32,7 @@ public class DomainMetadataUtil {
         metadata = null;
         ClientSemanticLayerDataSource domain = new ClientSemanticLayerDataSource().setUri(domainUri);
 
+        // send metadata request to server
         OperationResult<DataIslandsContainer> operationResult = configuration.getSession().
                 dataDiscoveryService().
                 domainContext().

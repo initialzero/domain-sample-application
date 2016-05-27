@@ -30,20 +30,26 @@ public class Application {
         consoleLogger.info("Choose way of configuration (file or manual) [f/m]: ");
         InitializationStrategy strategy = InitializationStrategyFactory.resolveStrategy(ConsoleUtil.readChar(new Character[]{'f', 'm'}));
         AppConfiguration configuration = strategy.initConfiguration();
+        // Initialization server session
         configuration.initSession();
 
+        //Execute provided query and save result dataset to file
         QueryExecutor providedQueryExecutor = new ProvidedQueryExecutor(configuration);
         providedQueryExecutor.executeQuery().saveQueryExecutionResults("providedQuery.json");
 
+        //Retrieve metadata, build and  execute flat query and save dataset to file
         QueryExecutor flatQueryExecutor = new FlatQueryExecutor(configuration);
         flatQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("flatQuery.json");
 
+        //Retrieve metadata, build and  execute multi level query and save dataset to file
         QueryExecutor multiLevelQueryExecutor = new MultiLevelQueryExecutor(configuration);
         multiLevelQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("multiLevelQuery.json");
 
+        //Retrieve metadata, build and  execute multi axes query and save dataset to file
         QueryExecutor multiAxesQueryExecutor = new MultiAxesQueryExecutor(configuration);
         multiAxesQueryExecutor.retrieveMetadata().buildQuery().executeQuery().saveQueryExecutionResults("multiAxesQuery.json");
 
+        //Logout on the server and stoop the application
         configuration.stopApplication();
     }
 }

@@ -20,19 +20,23 @@ public class ProvidedQueryExecutor extends QueryExecutor {
     private static final Logger appLogger = Logger.getLogger(ProvidedQueryExecutor.class);
 
     public ProvidedQueryExecutor(AppConfiguration configuration) {
-    this.configuration = configuration;
+        super(configuration);
     }
 
+    // retrieving of matadata is not necessary for provided query
     @Override
     public QueryExecutor retrieveMetadata() {
         return this;
     }
 
+    // there is not query for provided query
     @Override
     public QueryExecutor buildQuery() {
         return this;
     }
 
+    // execution query and getting result dataset
+    // provided query are supported only for Ad Hoc views
     @Override
     public QueryExecutor executeQuery() {
         appLogger.info("Execute provided query for " + adhocViewUri);
@@ -53,6 +57,7 @@ public class ProvidedQueryExecutor extends QueryExecutor {
             }
         }
 
+        // sending request to server and getting result dataset
         this.operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {

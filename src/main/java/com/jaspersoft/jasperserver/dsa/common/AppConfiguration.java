@@ -24,28 +24,11 @@ public class AppConfiguration {
     protected String username;
     protected String password;
     protected Session session;
-
-    public String getResponseFormat() {
-        return responseFormat;
-    }
-
-    public void setResponseFormat(String responseFormat) {
-        this.responseFormat = responseFormat;
-    }
-
     protected String responseFormat;
-
-    public String getResultDirectory() {
-        return resultDirectory;
-    }
-
-    public void setResultDirectory(String resultDirectory) {
-        this.resultDirectory = resultDirectory;
-    }
-
+    protected String domainUri;
     protected String resultDirectory;
-
     protected Properties properties;
+
     public AppConfiguration(Properties properties) {
         this.properties = properties;
         this.baseRepositoryFolder = properties.getProperty("baseFolder");
@@ -53,37 +36,29 @@ public class AppConfiguration {
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
         this.resultDirectory = properties.getProperty("resultDirectory");
-    }
-
-    public String getBaseRepositoryFolder() {
-        return baseRepositoryFolder;
+        this.domainUri = properties.getProperty("domainUri");
+        this.responseFormat = "json";
     }
 
     public String getUri() {
         return uri;
     }
 
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
     public Session getSession() {
         return session;
     }
 
-    public void setSession(Session session) {
-        this.session = session;
+    public String getResponseFormat() {
+        return responseFormat;
     }
 
+    public String getResultDirectory() {
+        return resultDirectory;
+    }
+
+    public String getDomainUri() {
+        return domainUri;
+    }
 
     public void initSession() {
         appLogger.info("Authentication on JasperReportsServer " + uri);

@@ -27,9 +27,8 @@ public class FlatQueryExecutor extends QueryExecutor {
 
     private static final Logger appLogger = Logger.getLogger(FlatQueryExecutor.class);
 
-
     public FlatQueryExecutor(AppConfiguration configuration) {
-        this.configuration = configuration;
+        super(configuration);
     }
 
     @Override
@@ -42,7 +41,11 @@ public class FlatQueryExecutor extends QueryExecutor {
     @Override
     public QueryExecutor buildQuery() {
         appLogger.info("Build flat query for domain " + supermartDpmainUri);
-        List<PresentationSingleElement> singleElements = findSingleElement(dataIslandsContainer.getDataIslands().get(0), 3);
+
+        // find elements for query in retrieved metadata
+        List<PresentationSingleElement> singleElements = findSingleElements(dataIslandsContainer.getDataIslands().get(0), 3);
+
+        // use found elements for building flat query
         List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
         for (PresentationSingleElement singleElement : singleElements) {
             ClientQueryField clientQueryField = new ClientQueryField().
@@ -51,6 +54,7 @@ public class FlatQueryExecutor extends QueryExecutor {
             queryFields.add(clientQueryField);
         }
 
+        // build query
         this.query =
                 new ClientMultiLevelQuery().
                 setSelect(new ClientSelect().setFields(queryFields)).setLimit(1000);
@@ -77,6 +81,8 @@ public class FlatQueryExecutor extends QueryExecutor {
                 queryExecutionAdapter = queryExecutionAdapter.asJson();
             }
         }
+
+        // send request to server ade get result dataset
         operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {

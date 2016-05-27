@@ -27,13 +27,21 @@ import static java.util.Arrays.asList;
  * @see
  */
 public abstract class QueryExecutor {
-    protected final static String supermartDpmainUri = "/public/Samples/Domains/supermartDomain";
-    protected final static String adhocViewUri = "/public/Samples/Ad_Hoc_Views/01__Geographic_Results_by_Segment";
+    protected final String adhocViewUri = "/public/Samples/Ad_Hoc_Views/01__Geographic_Results_by_Segment";
+    protected String supermartDpmainUri;
     protected AppConfiguration configuration;
     protected DataIslandsContainer dataIslandsContainer;
     protected ClientQuery query;
     protected OperationResult<? extends ClientQueryResultData> operationResult;
     protected File resultDir;
+
+    public QueryExecutor() {
+    }
+
+    public QueryExecutor(AppConfiguration configuration) {
+        this.configuration = configuration;
+        this.supermartDpmainUri = configuration.getDomainUri();
+    }
 
     public abstract QueryExecutor retrieveMetadata();
 
@@ -42,6 +50,7 @@ public abstract class QueryExecutor {
     public abstract QueryExecutor executeQuery();
 
     public void saveQueryExecutionResults(String filename) {
+        // prepare result directory
         if (resultDir == null) {
             resultDir = new File(configuration.getResultDirectory());
         }
@@ -51,6 +60,7 @@ public abstract class QueryExecutor {
         try {
             File file = new File(configuration.getResultDirectory() + File.separator + filename);
             FileOutputStream outputStream = new FileOutputStream(file);
+            //write server response entity to file
             outputStream.write(operationResult.getSerializedContent().getBytes());
             outputStream.flush();
         } catch (FileNotFoundException e) {
@@ -60,15 +70,15 @@ public abstract class QueryExecutor {
         }
     }
 
-
-    protected List<PresentationSingleElement> findSingleElement(PresentationElement presentationElement, int num) {
+// method finds specified number of single elements in group element of fetched metadata
+    protected List<PresentationSingleElement> findSingleElements(PresentationElement presentationElement, int num) {
         if (presentationElement instanceof PresentationSingleElement) {
             return asList((PresentationSingleElement) presentationElement);
         }
         List<PresentationElement> elements = ((PresentationGroupElement) presentationElement).getElements();
         List<PresentationSingleElement> resulrList = new ArrayList<PresentationSingleElement>(num);
         for (PresentationElement element : elements) {
-            List<PresentationSingleElement> singleElementList = findSingleElement(element, num);
+            List<PresentationSingleElement> singleElementList = findSingleElements(element, num);
             if (singleElementList != null) {
                 resulrList.addAll(singleElementList);
             }
@@ -79,10 +89,12 @@ public abstract class QueryExecutor {
         return null;
     }
 
+    // method finds one single element in fetched metadata
     protected PresentationSingleElement extractPresentationSingleElement(DataIslandsContainer container, String type) {
         return extractPresentationSingleElements(container, type, 1).get(0);
     }
 
+    // method finds specified number of single elements fetched metadata
     protected List<PresentationSingleElement> extractPresentationSingleElements(DataIslandsContainer container, String type, int num) {
         List<PresentationGroupElement> dataIslands = container.getDataIslands();
         List<PresentationSingleElement> singleElements = new ArrayList<PresentationSingleElement>(num);
@@ -98,6 +110,7 @@ public abstract class QueryExecutor {
         return singleElements;
     }
 
+    // method finds specified number of single elements in group element of fetched metadata
     protected List<PresentationSingleElement> findSingleElementsByType(PresentationElement presentationElement, String type, int num) {
         if (presentationElement instanceof PresentationSingleElement) {
 
