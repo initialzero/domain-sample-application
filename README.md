@@ -1,4 +1,4 @@
-# Sample application for demonstration Domain metadata API
+# Sample application for demonstration Domain metadata and QueryExecution API 
 ===========================================================
 
 Table of Contents
