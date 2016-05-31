@@ -4,13 +4,16 @@ import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dsa.domain.DomainMetadataUtil;
 import com.jaspersoft.jasperserver.dto.adhoc.datasource.ClientDataSourceField;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientMultiAxisQuery;
+import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
 import com.jaspersoft.jasperserver.dto.adhoc.query.MultiAxisQueryBuilder;
 import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryLevel;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
+import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
+import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -37,18 +40,19 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
     }
 
     @Override
-    public QueryExecutor retrieveMetadata() {
+    public DataIslandsContainer retrieveMetadata(String domainUri) {
+        this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
-        this.dataIslandsContainer = domainMetadataUtil.fetchMetadata(supermartDpmainUri);
-        return this;
+        DataIslandsContainer dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
+        return dataIslandsContainer;
     }
 
     @Override
-    public QueryExecutor buildQuery() {
-        appLogger.info("Build multi axes query for domain " + supermartDpmainUri);
+    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+        appLogger.info("Build multi axes query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
-        List<PresentationSingleElement> presentationSingleElements = extractPresentationSingleElements(dataIslandsContainer, "java.lang.Double", 2);
+        List<PresentationSingleElement> presentationSingleElements = extractPresentationSingleElements(metadata, "java.lang.Double", 2);
 
         // use found elements for building multi level query with sum by found element, group by rows and order by field
         ClientDataSourceField dataSourceField = new ClientDataSourceField().
@@ -65,15 +69,15 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
                 .groupByRows(queryLevel)
                 .orderBy(ascByMember(singletonList(presentationSingleElements.get(1).getHierarchicalName())));
 
-        this.query = qb.build().setLimit(100);
-        return this;
+        ClientQuery query = qb.build().setLimit(100);
+        return query;
     }
 
     @Override
-    public QueryExecutor executeQuery() {
+    public String executeQuery(ClientQuery query) {
         appLogger.info("Start to execute multi axes query");
         ClientMultiAxesQueryExecution queryExecution = new ClientMultiAxesQueryExecution().
-                setDataSourceUri(supermartDpmainUri).
+                setDataSourceUri(domainUri).
                 setQuery((ClientMultiAxisQuery) query).
                 setParams(new ClientQueryParams().setOffset(new int[]{0}).setPageSize(new int[]{100}));
 
@@ -90,13 +94,13 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
         }
 
         // send request to server ade get result dataset
-        operationResult = queryExecutionAdapter.
+        OperationResult<ClientMultiAxesQueryResultData> operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {
             appLogger.info("Multi axes query was executed successfully");
         } else {
             appLogger.warn("Executing of multi axes query failed with response status " + operationResult.getResponseStatus());
         }
-        return this;
+        return  operationResult.getSerializedContent();
     }
 }

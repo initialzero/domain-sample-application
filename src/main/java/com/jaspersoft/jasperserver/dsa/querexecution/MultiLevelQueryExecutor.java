@@ -4,13 +4,16 @@ import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dsa.domain.DomainMetadataUtil;
 import com.jaspersoft.jasperserver.dto.adhoc.datasource.ClientDataSourceField;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientMultiLevelQuery;
+import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQueryBuilder;
 import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryField;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
+import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
+import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import org.apache.log4j.Logger;
 
 import static com.jaspersoft.jasperserver.dto.adhoc.query.ClientAggregates.countAll;
@@ -35,17 +38,18 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
     }
 
     @Override
-    public QueryExecutor retrieveMetadata() {
+    public DataIslandsContainer retrieveMetadata(String domainUri) {
+        this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
-        this.dataIslandsContainer = domainMetadataUtil.fetchMetadata(supermartDpmainUri);
-        return this;
+        DataIslandsContainer dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
+        return dataIslandsContainer;
     }
 
     @Override
-    public QueryExecutor buildQuery() {
-        appLogger.info("Build multi level query for domain " + supermartDpmainUri);
+    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+        appLogger.info("Build multi level query for domain " + domainUri);
         // find element for query in retrieved metadata
-        PresentationSingleElement singleElement = extractPresentationSingleElement(dataIslandsContainer, "java.lang.Double");
+        PresentationSingleElement singleElement = extractPresentationSingleElement(metadata, "java.lang.Double");
 
         // use found element for building multi level query with sum by found element
         ClientQueryField queryField = new ClientQueryField().
@@ -56,16 +60,16 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
         ClientQueryBuilder qb =
                 select(singletonList(queryField), singletonList(countAll(queryField)));
 
-        this.query = qb.build().setLimit(100);
+        ClientQuery query = qb.build().setLimit(100);
 
-        return this;
+        return query;
     }
 
     @Override
-    public QueryExecutor executeQuery() {
+    public String executeQuery(ClientQuery query) {
         appLogger.info("Start to execute multi level query");
         ClientMultiLevelQueryExecution queryExecution = new ClientMultiLevelQueryExecution().
-                setDataSourceUri(supermartDpmainUri).
+                setDataSourceUri(domainUri).
                 setQuery((ClientMultiLevelQuery) query).
                 setParams(new ClientQueryParams().setOffset(new int[]{0}).setPageSize(new int[]{100}));
 
@@ -82,13 +86,13 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
         }
 
         // send request to server ade get result dataset
-        operationResult = queryExecutionAdapter.
+        OperationResult<ClientMultiLevelQueryResultData> operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {
             appLogger.info("Multi level query was executed successfully");
         } else {
             appLogger.warn("Executing of multi level query failed with response status " + operationResult.getResponseStatus());
         }
-        return this;
+        return operationResult.getSerializedContent();
     }
 }

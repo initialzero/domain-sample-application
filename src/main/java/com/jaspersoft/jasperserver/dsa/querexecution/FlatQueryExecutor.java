@@ -4,13 +4,16 @@ import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dsa.domain.DomainMetadataUtil;
 import com.jaspersoft.jasperserver.dto.adhoc.datasource.ClientDataSourceField;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientMultiLevelQuery;
+import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
 import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryField;
 import com.jaspersoft.jasperserver.dto.adhoc.query.select.ClientSelect;
 import com.jaspersoft.jasperserver.dto.executions.ClientFlatQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
+import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
+import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -32,18 +35,19 @@ public class FlatQueryExecutor extends QueryExecutor {
     }
 
     @Override
-    public QueryExecutor retrieveMetadata() {
+    public DataIslandsContainer retrieveMetadata(String domainUri) {
+        this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
-        this.dataIslandsContainer = domainMetadataUtil.fetchMetadata(supermartDpmainUri);
-        return this;
+        DataIslandsContainer dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
+        return dataIslandsContainer;
     }
 
     @Override
-    public QueryExecutor buildQuery() {
-        appLogger.info("Build flat query for domain " + supermartDpmainUri);
+    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+        appLogger.info("Build flat query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
-        List<PresentationSingleElement> singleElements = findSingleElements(dataIslandsContainer.getDataIslands().get(0), 3);
+        List<PresentationSingleElement> singleElements = findSingleElements(metadata.getDataIslands().get(0), 3);
 
         // use found elements for building flat query
         List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
@@ -55,18 +59,17 @@ public class FlatQueryExecutor extends QueryExecutor {
         }
 
         // build query
-        this.query =
-                new ClientMultiLevelQuery().
+        ClientQuery query = new ClientMultiLevelQuery().
                 setSelect(new ClientSelect().setFields(queryFields)).setLimit(1000);
 
-        return this;
+        return query;
     }
 
     @Override
-    public QueryExecutor executeQuery() {
+    public String executeQuery(ClientQuery query) {
         appLogger.info("Start to execute flat query");
         ClientMultiLevelQueryExecution queryExecution = new ClientMultiLevelQueryExecution().
-                setDataSourceUri(supermartDpmainUri).
+                setDataSourceUri(domainUri).
                 setQuery((ClientMultiLevelQuery) query).
                 setParams(new ClientQueryParams().setOffset(new int[]{0}).setPageSize(new int[]{100}));
 
@@ -83,13 +86,13 @@ public class FlatQueryExecutor extends QueryExecutor {
         }
 
         // send request to server ade get result dataset
-        operationResult = queryExecutionAdapter.
+        OperationResult<ClientFlatQueryResultData> operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {
             appLogger.info("Flat query was executed successfully");
         } else {
             appLogger.warn("Executing of flat query failed with response status " + operationResult.getResponseStatus());
         }
-        return this;
+        return operationResult.getSerializedContent();
     }
 }

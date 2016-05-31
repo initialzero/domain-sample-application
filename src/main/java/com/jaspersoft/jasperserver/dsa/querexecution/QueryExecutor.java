@@ -2,12 +2,10 @@ package com.jaspersoft.jasperserver.dsa.querexecution;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
-import com.jaspersoft.jasperserver.dto.executions.ClientQueryResultData;
 import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
-import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 import static java.util.Arrays.asList;
 
@@ -27,12 +26,9 @@ import static java.util.Arrays.asList;
  * @see
  */
 public abstract class QueryExecutor {
-    protected final String adhocViewUri = "/public/Samples/Ad_Hoc_Views/01__Geographic_Results_by_Segment";
-    protected String supermartDpmainUri;
+    private static final Logger appLogger = Logger.getLogger(QueryExecutor.class);
     protected AppConfiguration configuration;
-    protected DataIslandsContainer dataIslandsContainer;
-    protected ClientQuery query;
-    protected OperationResult<? extends ClientQueryResultData> operationResult;
+    protected String domainUri;
     protected File resultDir;
 
     public QueryExecutor() {
@@ -40,28 +36,36 @@ public abstract class QueryExecutor {
 
     public QueryExecutor(AppConfiguration configuration) {
         this.configuration = configuration;
-        this.supermartDpmainUri = configuration.getDomainUri();
     }
 
-    public abstract QueryExecutor retrieveMetadata();
+    public abstract DataIslandsContainer retrieveMetadata(String domainUri);
 
-    public abstract QueryExecutor buildQuery();
+    public abstract ClientQuery buildQuery(DataIslandsContainer metadata);
 
-    public abstract QueryExecutor executeQuery();
+    public abstract String executeQuery(ClientQuery query);
 
-    public void saveQueryExecutionResults(String filename) {
+    public void saveQueryExecutionResults(String resultDataSet, String filename) {
         // prepare result directory
+        if (resultDataSet == null) {
+            appLogger.warn("Result data set is null");
+            return;
+        }
+        if (filename == null || filename.isEmpty()) {
+            appLogger.warn("File name is not valid");
+            return;
+        }
         if (resultDir == null) {
             resultDir = new File(configuration.getResultDirectory());
         }
         if (!resultDir.exists()) {
             resultDir.mkdirs();
         }
+
         try {
             File file = new File(configuration.getResultDirectory() + File.separator + filename);
             FileOutputStream outputStream = new FileOutputStream(file);
             //write server response entity to file
-            outputStream.write(operationResult.getSerializedContent().getBytes());
+            outputStream.write(resultDataSet.getBytes());
             outputStream.flush();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
