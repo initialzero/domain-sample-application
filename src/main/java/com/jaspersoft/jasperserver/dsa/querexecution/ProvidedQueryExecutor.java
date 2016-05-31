@@ -1,10 +1,16 @@
 package com.jaspersoft.jasperserver.dsa.querexecution;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
+import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
+import com.jaspersoft.jasperserver.dto.adhoc.query.group.ClientGroupBy;
+import com.jaspersoft.jasperserver.dto.adhoc.query.order.ClientOrder;
 import com.jaspersoft.jasperserver.dto.executions.ClientProvidedQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryResultData;
+import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
+import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -25,23 +31,34 @@ public class ProvidedQueryExecutor extends QueryExecutor {
 
     // retrieving of matadata is not necessary for provided query
     @Override
-    public QueryExecutor retrieveMetadata() {
-        return this;
+    public DataIslandsContainer retrieveMetadata(String domainUri) {
+        this.domainUri = domainUri;
+        return new DataIslandsContainer();
     }
 
     // there is not query for provided query
     @Override
-    public QueryExecutor buildQuery() {
-        return this;
+    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+        return new ClientQuery() {
+            @Override
+            public <T extends ClientGroupBy> T getGroupBy() {
+                return null;
+            }
+
+            @Override
+            public List<? extends ClientOrder> getOrderBy() {
+                return null;
+            }
+        };
     }
 
     // execution query and getting result dataset
     // provided query are supported only for Ad Hoc views
     @Override
-    public QueryExecutor executeQuery() {
-        appLogger.info("Execute provided query for " + adhocViewUri);
+    public String executeQuery(ClientQuery query) {
+        appLogger.info("Execute provided query for " + domainUri);
         ClientProvidedQueryExecution queryExecution = new ClientProvidedQueryExecution().
-                setDataSourceUri(adhocViewUri).
+                setDataSourceUri(domainUri).
                 setParams(new ClientQueryParams().setOffset(new int[]{0}).setPageSize(new int[]{100}));
 
         QueryExecutionAdapter<ClientQueryResultData> queryExecutionAdapter = configuration.getSession().
@@ -58,14 +75,14 @@ public class ProvidedQueryExecutor extends QueryExecutor {
         }
 
         // sending request to server and getting result dataset
-        this.operationResult = queryExecutionAdapter.
+        OperationResult<ClientQueryResultData> operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {
             appLogger.info("Provided query was executed successfully");
         } else {
             appLogger.warn("Executing of provided query failed with response status " + operationResult.getResponseStatus());
         }
-        return this;
+        return operationResult.getSerializedContent();
     }
 
 }
