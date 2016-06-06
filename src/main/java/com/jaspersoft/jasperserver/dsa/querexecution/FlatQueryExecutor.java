@@ -14,6 +14,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -26,15 +27,16 @@ import org.apache.log4j.Logger;
  * @version $Id$
  * @see
  */
-public class FlatQueryExecutor extends QueryExecutor {
+public class FlatQueryExecutor {
 
     private static final Logger appLogger = Logger.getLogger(FlatQueryExecutor.class);
+    private AppConfiguration configuration;
+    private String domainUri;
 
     public FlatQueryExecutor(AppConfiguration configuration) {
-        super(configuration);
+        this.configuration = configuration;
     }
 
-    @Override
     public DataIslandsContainer retrieveMetadata(String domainUri) {
         this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
@@ -42,12 +44,11 @@ public class FlatQueryExecutor extends QueryExecutor {
         return dataIslandsContainer;
     }
 
-    @Override
     public ClientQuery buildQuery(DataIslandsContainer metadata) {
         appLogger.info("Build flat query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
-        List<PresentationSingleElement> singleElements = findSingleElements(metadata.getDataIslands().get(0), 3);
+        List<PresentationSingleElement> singleElements = QueryBuilderUtil.findSingleElements(metadata.getDataIslands().get(0), 3);
 
         // use found elements for building flat query
         List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
@@ -65,8 +66,7 @@ public class FlatQueryExecutor extends QueryExecutor {
         return query;
     }
 
-    @Override
-    public String executeQuery(ClientQuery query) {
+    public InputStream executeQuery(ClientQuery query) {
         appLogger.info("Start to execute flat query");
         ClientMultiLevelQueryExecution queryExecution = new ClientMultiLevelQueryExecution().
                 setDataSourceUri(domainUri).
@@ -92,7 +92,8 @@ public class FlatQueryExecutor extends QueryExecutor {
             appLogger.info("Flat query was executed successfully");
         } else {
             appLogger.warn("Executing of flat query failed with response status " + operationResult.getResponseStatus());
+            return null;
         }
-        return operationResult.getSerializedContent();
+        return operationResult.getResponse().readEntity(InputStream.class);
     }
 }
