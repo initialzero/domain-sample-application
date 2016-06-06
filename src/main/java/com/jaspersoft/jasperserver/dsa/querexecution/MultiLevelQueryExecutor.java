@@ -14,6 +14,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
+import java.io.InputStream;
 import org.apache.log4j.Logger;
 
 import static com.jaspersoft.jasperserver.dto.adhoc.query.ClientAggregates.countAll;
@@ -28,16 +29,17 @@ import static java.util.Collections.singletonList;
  * @version $Id$
  * @see
  */
-public class MultiLevelQueryExecutor extends QueryExecutor {
+public class MultiLevelQueryExecutor {
 
     private static final Logger appLogger = Logger.getLogger(MultiLevelQueryExecutor.class);
+    private AppConfiguration configuration;
+    private String domainUri;
 
 
     public MultiLevelQueryExecutor(AppConfiguration configuration) {
-        super(configuration);
+        this.configuration = configuration;
     }
 
-    @Override
     public DataIslandsContainer retrieveMetadata(String domainUri) {
         this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
@@ -45,11 +47,10 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
         return dataIslandsContainer;
     }
 
-    @Override
     public ClientQuery buildQuery(DataIslandsContainer metadata) {
         appLogger.info("Build multi level query for domain " + domainUri);
         // find element for query in retrieved metadata
-        PresentationSingleElement singleElement = extractPresentationSingleElement(metadata, "java.lang.Double");
+        PresentationSingleElement singleElement = QueryBuilderUtil.extractPresentationSingleElement(metadata, "java.lang.Double");
 
         // use found element for building multi level query with sum by found element
         ClientQueryField queryField = new ClientQueryField().
@@ -65,8 +66,7 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
         return query;
     }
 
-    @Override
-    public String executeQuery(ClientQuery query) {
+    public InputStream executeQuery(ClientQuery query) {
         appLogger.info("Start to execute multi level query");
         ClientMultiLevelQueryExecution queryExecution = new ClientMultiLevelQueryExecution().
                 setDataSourceUri(domainUri).
@@ -92,7 +92,8 @@ public class MultiLevelQueryExecutor extends QueryExecutor {
             appLogger.info("Multi level query was executed successfully");
         } else {
             appLogger.warn("Executing of multi level query failed with response status " + operationResult.getResponseStatus());
+            return  null;
         }
-        return operationResult.getSerializedContent();
+        return operationResult.getResponse().readEntity(InputStream.class);
     }
 }

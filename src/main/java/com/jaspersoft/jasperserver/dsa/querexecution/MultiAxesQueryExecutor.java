@@ -14,6 +14,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
+import java.io.InputStream;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -30,16 +31,17 @@ import static java.util.Collections.singletonList;
  * @version $Id$
  * @see
  */
-public class MultiAxesQueryExecutor extends QueryExecutor {
+public class MultiAxesQueryExecutor {
 
     private static final Logger appLogger = Logger.getLogger(MultiAxesQueryExecutor.class);
+    private String domainUri;
+    private AppConfiguration configuration;
 
 
     public MultiAxesQueryExecutor(AppConfiguration configuration) {
-        super(configuration);
+        this.configuration = configuration;
     }
 
-    @Override
     public DataIslandsContainer retrieveMetadata(String domainUri) {
         this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
@@ -47,12 +49,12 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
         return dataIslandsContainer;
     }
 
-    @Override
     public ClientQuery buildQuery(DataIslandsContainer metadata) {
         appLogger.info("Build multi axes query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
-        List<PresentationSingleElement> presentationSingleElements = extractPresentationSingleElements(metadata, "java.lang.Double", 2);
+        List<PresentationSingleElement> presentationSingleElements = QueryBuilderUtil.
+                extractPresentationSingleElements(metadata, "java.lang.Double", 2);
 
         // use found elements for building multi level query with sum by found element, group by rows and order by field
         ClientDataSourceField dataSourceField = new ClientDataSourceField().
@@ -73,8 +75,7 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
         return query;
     }
 
-    @Override
-    public String executeQuery(ClientQuery query) {
+    public InputStream executeQuery(ClientQuery query) {
         appLogger.info("Start to execute multi axes query");
         ClientMultiAxesQueryExecution queryExecution = new ClientMultiAxesQueryExecution().
                 setDataSourceUri(domainUri).
@@ -100,7 +101,8 @@ public class MultiAxesQueryExecutor extends QueryExecutor {
             appLogger.info("Multi axes query was executed successfully");
         } else {
             appLogger.warn("Executing of multi axes query failed with response status " + operationResult.getResponseStatus());
+            return null;
         }
-        return  operationResult.getSerializedContent();
+        return  operationResult.getResponse().readEntity(InputStream.class);
     }
 }

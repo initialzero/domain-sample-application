@@ -1,16 +1,12 @@
 package com.jaspersoft.jasperserver.dsa.querexecution;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
-import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
-import com.jaspersoft.jasperserver.dto.adhoc.query.group.ClientGroupBy;
-import com.jaspersoft.jasperserver.dto.adhoc.query.order.ClientOrder;
 import com.jaspersoft.jasperserver.dto.executions.ClientProvidedQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryResultData;
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
-import java.util.List;
+import java.io.InputStream;
 import org.apache.log4j.Logger;
 
 /**
@@ -21,41 +17,18 @@ import org.apache.log4j.Logger;
  * @version $Id$
  * @see
  */
-public class ProvidedQueryExecutor extends QueryExecutor {
+public class ProvidedQueryExecutor {
 
     private static final Logger appLogger = Logger.getLogger(ProvidedQueryExecutor.class);
+    private AppConfiguration configuration;
 
     public ProvidedQueryExecutor(AppConfiguration configuration) {
-        super(configuration);
-    }
-
-    // retrieving of matadata is not necessary for provided query
-    @Override
-    public DataIslandsContainer retrieveMetadata(String domainUri) {
-        this.domainUri = domainUri;
-        return new DataIslandsContainer();
-    }
-
-    // there is not query for provided query
-    @Override
-    public ClientQuery buildQuery(DataIslandsContainer metadata) {
-        return new ClientQuery() {
-            @Override
-            public <T extends ClientGroupBy> T getGroupBy() {
-                return null;
-            }
-
-            @Override
-            public List<? extends ClientOrder> getOrderBy() {
-                return null;
-            }
-        };
+        this.configuration = configuration;
     }
 
     // execution query and getting result dataset
     // provided query are supported only for Ad Hoc views
-    @Override
-    public String executeQuery(ClientQuery query) {
+    public InputStream executeQuery(String domainUri) {
         appLogger.info("Execute provided query for " + domainUri);
         ClientProvidedQueryExecution queryExecution = new ClientProvidedQueryExecution().
                 setDataSourceUri(domainUri).
@@ -81,8 +54,9 @@ public class ProvidedQueryExecutor extends QueryExecutor {
             appLogger.info("Provided query was executed successfully");
         } else {
             appLogger.warn("Executing of provided query failed with response status " + operationResult.getResponseStatus());
+            return null;
         }
-        return operationResult.getSerializedContent();
+        return operationResult.getResponse().readEntity(InputStream.class);
     }
 
 }
