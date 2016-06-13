@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
  */
 public class QueryBuilderUtil {
 
-
     // method finds specified number of single elements in group element of fetched metadata
     public static List<PresentationSingleElement> findSingleElements(PresentationElement presentationElement, int num) {
         if (presentationElement instanceof PresentationSingleElement) {
@@ -81,5 +80,4 @@ public class QueryBuilderUtil {
         }
         return resultElements;
     }
-
 }
