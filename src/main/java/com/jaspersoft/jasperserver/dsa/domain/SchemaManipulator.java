@@ -1,5 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.domain;
 
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.ClientExpressionContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.ConstantsResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Join;
 import com.jaspersoft.jasperserver.dto.resources.domain.JoinInfo;
@@ -66,13 +67,13 @@ public class SchemaManipulator {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement1.
                         setName(calcFieldNumName).
                         setType(JAVA_MATH_BIG_DECIMAL).
-                        setExpression("store_cost*10"));
+                        setExpression(new ClientExpressionContainer().setExpressionString("store_cost*10")));
             }
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement2.
                         setName(calcFieldStringName).
                         setType(JAVA_LANG_STRING).
-                        setExpression("concat(fname,' ',lname)"));
+                        setExpression(new ClientExpressionContainer().setExpressionString("concat(fname,' ',lname)")));
             }
 
         }
@@ -93,7 +94,7 @@ public class SchemaManipulator {
         joinsElements.add(new ResourceSingleElement().
                 setName(calcFieldName).
                 setType(JAVA_LANG_STRING).
-                setExpression("concat(public_customer.fullname,', ',public_product.brand_name)"));
+                setExpression(new ClientExpressionContainer().setExpressionString("concat(public_customer.fullname,', ',public_product.brand_name)")));
         // add calculated fields to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
         presentations.add(new PresentationSingleElement().
@@ -121,7 +122,7 @@ public class SchemaManipulator {
         constantElements.add(new ResourceSingleElement().
                 setName(constantField).
                 setType(JAVA_LANG_INTEGER).
-                setExpression(value.toString()));
+                setExpression(new ClientExpressionContainer().setExpressionString(value.toString())));
 
         constantsResourceGroupElement.setElements(constantElements);
         resources.add(1, constantsResourceGroupElement);
@@ -155,10 +156,12 @@ public class SchemaManipulator {
         // add filters to particular tables in resources
         for (SchemaElement resource : resources) {
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
-                ((ResourceGroupElement) resource).setFilterExpression("country == 'USA'");
+                ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
+                        setExpressionString("country == 'USA'"));
             }
             if (resource.getName().equals(FULL_TABLE_NAME_2_PRODUCT)) {
-                ((ResourceGroupElement) resource).setFilterExpression("low_fat == true and net_weight < 10.0");
+                ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
+                        setExpressionString("low_fat == true and net_weight < 10.0"));
             }
         }
     }
@@ -166,7 +169,8 @@ public class SchemaManipulator {
     public void addCrossTableFilter(Schema schema) {
         JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) schema.getResources().get(1);
         // add cross table filter to join group
-        joinGroup.setFilterExpression("not contains(public_product.brand_name, public_customer.fname)");
+        joinGroup.setFilterExpression(new ClientExpressionContainer().
+                setExpressionString("not contains(public_product.brand_name, public_customer.fname)"));
     }
 
     public void addTwoFieldsFilter(Schema schema) {
@@ -179,7 +183,8 @@ public class SchemaManipulator {
         for (SchemaElement resource : resources) {
 
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
-                ((ResourceGroupElement) resource).setFilterExpression("contains(fullname, fname)");
+                ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
+                        setExpressionString("contains(fullname, fname)"));
             }
         }
     }
@@ -213,7 +218,8 @@ public class SchemaManipulator {
         joinGroup.getJoinInfo().getJoins().add(new Join().
                 setLeft(queryElementName).
                 setRight(FULL_TABLE_NAME_1_CUSTOMER).
-                setExpression("public_customer.customer_id == TestQueryCustomer.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_customer.customer_id == TestQueryCustomer.customer_id")).
                 setWeight(1).
                 setType(Join.JoinType.inner));
 
@@ -261,7 +267,8 @@ public class SchemaManipulator {
         joinGroup.getJoinInfo().getJoins().add(new Join().
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(copyElement.getName()).
-                setExpression("public_agg_ll_01_sales_fact_1997.customer_id == public_customer1.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer1.customer_id")).
                 setWeight(1).
                 setType(Join.JoinType.inner));
 
@@ -329,13 +336,15 @@ public class SchemaManipulator {
         joinsList0.add(new Join().
                 setLeft(table1Customer1Name).
                 setRight(table0AggC14Name).
-                setExpression("public_agg_c_14_sales_fact_1997.customer_id == public_customer1.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_agg_c_14_sales_fact_1997.customer_id == public_customer1.customer_id")).
                 setWeight(1).
                 setType(Join.JoinType.rightOuter));
         joinsList0.add(new Join().
                 setLeft(table1Customer1Name).
                 setRight(table3CustomerSalesName).
-                setExpression("public_customer_sales.customer_id == public_customer1.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_customer_sales.customer_id == public_customer1.customer_id")).
                 setWeight(1).
                 setType(Join.JoinType.inner));
         List<SchemaElement> referenceElements0 = new LinkedList<SchemaElement>();
@@ -356,7 +365,8 @@ public class SchemaManipulator {
         joinsList1.add(new Join().
                 setLeft(table4CustomerSales1Name).
                 setRight(table2Customer11Name).
-                setExpression("public_customer11.customer_id == public_customer_sales1.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_customer11.customer_id == public_customer_sales1.customer_id")).
                 setWeight(1).
                 setType(Join.JoinType.fullOuter));
         List<SchemaElement> referenceElements1 = new LinkedList<SchemaElement>();

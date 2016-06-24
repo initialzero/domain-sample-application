@@ -1,7 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.common;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import org.apache.log4j.Logger;
 
@@ -29,8 +28,8 @@ public class ConsoleUtil {
                     break;
                 }
                 consoleLogger.warn("Value is incorrect, please, enter valid value:");
-            } catch (IOException e) {
-                consoleLogger.warn("Error of reading from console", e);
+            } catch (Exception e) {
+                consoleLogger.warn("Error of reading from console, please, repeat enter: ");
             }
         }
         return in;
