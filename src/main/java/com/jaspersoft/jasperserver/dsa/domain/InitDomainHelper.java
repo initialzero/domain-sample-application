@@ -1,5 +1,6 @@
 package com.jaspersoft.jasperserver.dsa.domain;
 
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.ClientExpressionContainer;
 import com.jaspersoft.jasperserver.dto.resources.ClientReference;
 import com.jaspersoft.jasperserver.dto.resources.domain.ClientDomain;
 import com.jaspersoft.jasperserver.dto.resources.domain.Join;
@@ -110,13 +111,15 @@ public class InitDomainHelper {
         joins.add(new Join().
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(FULL_TABLE_NAME_1_CUSTOMER).
-                setExpression("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id")).
                 setWeight(1)
                 .setType(Join.JoinType.inner));
         joins.add(new Join().
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(FULL_TABLE_NAME_2_PRODUCT).
-                setExpression("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id").
+                setExpression(new ClientExpressionContainer().
+                        setExpressionString("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id")).
                 setWeight(1).setType(Join.JoinType.inner));
 
         // add joins to JoinGroup section of domain schema
