@@ -1,6 +1,16 @@
 package com.jaspersoft.jasperserver.dsa.domain;
 
 import com.jaspersoft.jasperserver.dto.adhoc.query.el.ClientExpressionContainer;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.ClientVariable;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.literal.ClientBoolean;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.literal.ClientDecimal;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.literal.ClientInteger;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.literal.ClientString;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.ClientFunction;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.arithmetic.ClientMultiply;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.comparison.ClientEquals;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.comparison.ClientLess;
+import com.jaspersoft.jasperserver.dto.adhoc.query.el.operator.logical.ClientAnd;
 import com.jaspersoft.jasperserver.dto.resources.domain.ConstantsResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Join;
 import com.jaspersoft.jasperserver.dto.resources.domain.JoinInfo;
@@ -15,6 +25,7 @@ import com.jaspersoft.jasperserver.dto.resources.domain.ResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Schema;
 import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +50,7 @@ import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPath;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPresentationSingleElementName;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresentationGroupElement;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresentationSingleElement;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -64,16 +76,27 @@ public class SchemaManipulator {
         ResourceSingleElement resourceSingleElement2 = new ResourceSingleElement();
         for (SchemaElement resource : resources) {
             if (resource.getName().equals(FULL_TABLE_NAME_0_AGG_11_01)) {
+                // Create expression object that equal string expression "store_cost*10"
+                ClientMultiply clientMultiply = new ClientMultiply();
+                clientMultiply.getOperands().add(new ClientVariable("store_cost"));
+                clientMultiply.getOperands().add(new ClientInteger(10));
+                // and expression object as expression for new resource single element
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement1.
                         setName(calcFieldNumName).
                         setType(JAVA_MATH_BIG_DECIMAL).
-                        setExpression(new ClientExpressionContainer().setExpressionString("store_cost*10")));
+                        setExpression(new ClientExpressionContainer().setExpressionObject(clientMultiply)));
             }
+            // Create expression object that equal string expression "concat(fname,' ',lname)"
+            ClientFunction function = new ClientFunction("concat");
+            function.getOperands().add(new ClientVariable("fname"));
+            function.getOperands().add(new ClientString(", "));
+            function.getOperands().add(new ClientVariable("lname"));
+            // and expression object as expression for new resource single element
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement2.
                         setName(calcFieldStringName).
                         setType(JAVA_LANG_STRING).
-                        setExpression(new ClientExpressionContainer().setExpressionString("concat(fname,' ',lname)")));
+                        setExpression(new ClientExpressionContainer().setExpressionObject(function)));
             }
 
         }
@@ -90,11 +113,19 @@ public class SchemaManipulator {
         List<SchemaElement> joinsElements = joins.getElements();
 
         // add calculated fields to particular tables in joinsElements
+
         String calcFieldName = "CrossTableCalcField";
+        // Create expression object that equal string expression "concat(public_customer.fullname,', ',public_product.brand_name)"
+        ClientFunction function = new ClientFunction("concat");
+        function.getOperands().add(new ClientVariable("public_customer.fullname"));
+        function.getOperands().add(new ClientString(", "));
+        function.getOperands().add(new ClientVariable("public_product.brand_name"));
+        // and expression object as expression for new resource single element
         joinsElements.add(new ResourceSingleElement().
                 setName(calcFieldName).
                 setType(JAVA_LANG_STRING).
-                setExpression(new ClientExpressionContainer().setExpressionString("concat(public_customer.fullname,', ',public_product.brand_name)")));
+                setExpression(new ClientExpressionContainer().setExpressionObject(function)));
+
         // add calculated fields to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
         presentations.add(new PresentationSingleElement().
@@ -156,12 +187,28 @@ public class SchemaManipulator {
         // add filters to particular tables in resources
         for (SchemaElement resource : resources) {
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
+
+                // Create expression object that equal string expression "country == 'USA'"
+                ClientEquals clientEquals = new ClientEquals(asList(
+                        new ClientVariable("country"),
+                        new ClientString("USA")));
+                // and expression object as expression for new resource single element
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
-                        setExpressionString("country == 'USA'"));
+                        setExpressionObject(clientEquals));
             }
             if (resource.getName().equals(FULL_TABLE_NAME_2_PRODUCT)) {
+
+                // Create expression object that equal string expression "low_fat == true and net_weight < 10.0"
+                // and set it as expression
+                ClientEquals clientEquals = new ClientEquals(asList(new ClientVariable("low_fat"), new ClientBoolean(Boolean.TRUE)));
+                ClientLess clientLess = new ClientLess();
+                clientLess.getOperands().add(new ClientVariable("net_weight"));
+                clientLess.getOperands().add(new ClientDecimal(BigDecimal.valueOf(10)));
+                ClientAnd clientAnd = new ClientAnd();
+                clientAnd.getOperands().add(clientEquals);
+                clientAnd.getOperands().add(clientLess);
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
-                        setExpressionString("low_fat == true and net_weight < 10.0"));
+                        setExpressionObject(clientAnd));
             }
         }
     }
