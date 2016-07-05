@@ -25,7 +25,6 @@ import com.jaspersoft.jasperserver.dto.resources.domain.ResourceGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.ResourceSingleElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.Schema;
 import com.jaspersoft.jasperserver.dto.resources.domain.SchemaElement;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +49,6 @@ import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPath;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPresentationSingleElementName;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresentationGroupElement;
 import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresentationSingleElement;
-import static java.util.Arrays.asList;
 
 
 /**
@@ -77,9 +75,9 @@ public class SchemaManipulator {
         for (SchemaElement resource : resources) {
             if (resource.getName().equals(FULL_TABLE_NAME_0_AGG_11_01)) {
                 // Create expression object that equal string expression "store_cost*10"
-                ClientMultiply clientMultiply = new ClientMultiply();
-                clientMultiply.getOperands().add(new ClientVariable("store_cost"));
-                clientMultiply.getOperands().add(new ClientInteger(10));
+                ClientMultiply clientMultiply = new ClientMultiply().
+                        addOperand(new ClientVariable("store_cost")).
+                        addOperand(new ClientInteger(10));
                 // and expression object as expression for new resource single element
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement1.
                         setName(calcFieldNumName).
@@ -87,10 +85,10 @@ public class SchemaManipulator {
                         setExpression(new ClientExpressionContainer().setExpressionObject(clientMultiply)));
             }
             // Create expression object that equal string expression "concat(fname,' ',lname)"
-            ClientFunction function = new ClientFunction("concat");
-            function.getOperands().add(new ClientVariable("fname"));
-            function.getOperands().add(new ClientString(", "));
-            function.getOperands().add(new ClientVariable("lname"));
+            ClientFunction function = new ClientFunction("concat").
+                    addOperand(new ClientVariable("fname")).
+                    addOperand(new ClientString(", ")).
+                    addOperand(new ClientVariable("lname"));
             // and expression object as expression for new resource single element
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement2.
@@ -98,7 +96,6 @@ public class SchemaManipulator {
                         setType(JAVA_LANG_STRING).
                         setExpression(new ClientExpressionContainer().setExpressionObject(function)));
             }
-
         }
         // add calculated fields to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
@@ -116,10 +113,10 @@ public class SchemaManipulator {
 
         String calcFieldName = "CrossTableCalcField";
         // Create expression object that equal string expression "concat(public_customer.fullname,', ',public_product.brand_name)"
-        ClientFunction function = new ClientFunction("concat");
-        function.getOperands().add(new ClientVariable("public_customer.fullname"));
-        function.getOperands().add(new ClientString(", "));
-        function.getOperands().add(new ClientVariable("public_product.brand_name"));
+        ClientFunction function = new ClientFunction("concat").
+                addOperand(new ClientVariable("public_customer.fullname")).
+                addOperand(new ClientString(", ")).
+                addOperand(new ClientVariable("public_product.brand_name"));
         // and expression object as expression for new resource single element
         joinsElements.add(new ResourceSingleElement().
                 setName(calcFieldName).
@@ -189,9 +186,9 @@ public class SchemaManipulator {
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
 
                 // Create expression object that equal string expression "country == 'USA'"
-                ClientEquals clientEquals = new ClientEquals(asList(
-                        new ClientVariable("country"),
-                        new ClientString("USA")));
+                ClientEquals clientEquals = new ClientEquals().
+                        addOperand(new ClientVariable("country")).
+                        addOperand(new ClientString("USA"));
                 // and expression object as expression for new resource single element
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
                         setExpressionObject(clientEquals));
@@ -199,14 +196,18 @@ public class SchemaManipulator {
             if (resource.getName().equals(FULL_TABLE_NAME_2_PRODUCT)) {
 
                 // Create expression object that equal string expression "low_fat == true and net_weight < 10.0"
-                // and set it as expression
-                ClientEquals clientEquals = new ClientEquals(asList(new ClientVariable("low_fat"), new ClientBoolean(Boolean.TRUE)));
-                ClientLess clientLess = new ClientLess();
-                clientLess.getOperands().add(new ClientVariable("net_weight"));
-                clientLess.getOperands().add(new ClientDecimal(BigDecimal.valueOf(10)));
-                ClientAnd clientAnd = new ClientAnd();
-                clientAnd.getOperands().add(clientEquals);
-                clientAnd.getOperands().add(clientLess);
+                ClientEquals clientEquals = new ClientEquals().
+                        addOperand(new ClientVariable("low_fat")).
+                        addOperand(new ClientBoolean(Boolean.TRUE));
+                ClientLess clientLess = new ClientLess().
+                        addOperand(new ClientVariable("net_weight")).
+                        addOperand(new ClientDecimal(10D));
+
+                ClientAnd clientAnd = new ClientAnd().
+                        addOperand(clientEquals).
+                        addOperand(clientLess);
+
+                // set expression object as expression
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
                         setExpressionObject(clientAnd));
             }
