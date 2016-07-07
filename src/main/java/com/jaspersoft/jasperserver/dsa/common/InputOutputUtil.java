@@ -72,7 +72,7 @@ public class InputOutputUtil {
             out = new FileOutputStream(resultDir + File.separator + filename);
             IOUtils.copy(resultDataSetStream, out);
         } catch (IOException e) {
-            e.printStackTrace();
+            consoleLogger.warn("Error of writing data to file", e);
         } finally {
             try {
                 resultDataSetStream.close();
