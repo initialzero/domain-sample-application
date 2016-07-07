@@ -23,43 +23,31 @@ Sofware requirements:
 - Git (or anther tool that allowS you clone the project from GitHub)
 
 To build the sample app:
-
 1. Clone the repository to your local computer using Git command: 
-
 ```bash
 git clone https://github.com/Jaspersoft/domain-sample-application.git
 ```
-
 Or download the source code directly from the main page of repository: `https://github.com/Jaspersoft/domain-sample-application`
-
 2. Switch to the `develop-domainQueryExecutionSampleApp` branch:
 
 ```bash
 git checkout develop-domainQueryExecutionSampleApp
 ```
-
 The next 3 steps are temporary, until the Metadata REST API is released on JRS. Until then, you must also have already built `JasperReportsServer-CE` and `JasperReportsServer-PRO` version `6.2.0-adhoc-rest-api-SNAPSHOT` (from  `amber-ce-adhoc-rest-api` SVN branch). 
-
 3. Clone the JRSRestClient repository from GitHub:
 ```bash
 cd ..
 git clone https://github.com/Jaspersoft/jrs-rest-java-client.git
 ```
-
 4. Switch to its `develop-domainQuery` branch:
-
 ```bash
 git checkout branch develop-queryExecution
 ```
-
 5. In the JRSRestClient project, run the Maven `install` target:
-
 ```bash
 mvn install
 ```
-
 6. In the sample application project, build with the Maven `package` target:
-
 ```bash
 cd ../domain-sample-application
 mvn package
@@ -79,6 +67,7 @@ Configuration
 -------------
 
 Semple application must be properly configured in two ways: 
+
 1. from `properties` file. To use this way of configuration choose `f` for `file` when prompted by the application and enter the path to your local file. For example:
 ```
 [INFO] Initialization of application
