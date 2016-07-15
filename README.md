@@ -1,7 +1,8 @@
-# Sample application for demonstration Domain API
+# Sample application for demonstration Domain API(in development)
 ===========================================================
 
 The application demonstrates functionality of doamin designer of JasperReports servers. Also it shows how to use schema of domain.
+New Domain Designer, New Domain Schema and Domain API are in development at the present time and aren't supported by Jasperperreports Server 6.3.0. This funtionality will be included in subsequent releases.
 
 Table of Contents
 ------------------
