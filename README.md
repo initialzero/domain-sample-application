@@ -21,6 +21,8 @@ or download source code directly from the main page of repository `https://githu
 ```java
 mvn package
 ```
+Please notice, as the application is only for internal use you need enabled VPN connection.
+
 You can find executable jar file in `target` folder.
 To run application enter in command line:
 ```java
@@ -44,7 +46,7 @@ In case of manual configuration the application suggest to enter each parameter 
 [INFO] Enter username: superuser
 [INFO] Enter password: superuser
 [INFO] Enter baseFolder: /public/demo
-[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
 
 ...
 ```
@@ -57,14 +59,14 @@ You can specify init parameters in `property` file and set path to this file for
 [INFO] Enter path to configuration file: D:\config.properties
 
 [INFO] The application is configured from D:\config.properties file
-[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
 
 ...
 
 ```
  Here is example of `config.properties` file:
  ```
- url=http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+ url=http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
  username=superuser
  password=superuser
  baseFolder=/public/DomainDemo
