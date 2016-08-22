@@ -61,6 +61,10 @@ import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.resourceToPresen
  */
 public class SchemaManipulator {
 
+    public static final String JOIN_TYPE_INNER = "inner";
+    public static final String JOIN_TYPE_RIGHT_OUTER = "rightOuter";
+    public static final String JOIN_TYPE_FULL_OUTER = "fullOuter";
+
     public void addCalculatedFields(Schema schema) {
 
         ResourceGroupElement datasource = (ResourceGroupElement) schema.getResources().get(0);
@@ -82,7 +86,7 @@ public class SchemaManipulator {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement1.
                         setName(calcFieldNumName).
                         setType(JAVA_MATH_BIG_DECIMAL).
-                        setExpression(new ClientExpressionContainer().setExpressionObject(clientMultiply)));
+                        setExpression(new ClientExpressionContainer().setObject(clientMultiply)));
             }
             // Create expression object that equal string expression "concat(fname,' ',lname)"
             ClientFunction function = new ClientFunction("concat").
@@ -94,7 +98,7 @@ public class SchemaManipulator {
                 ((ResourceGroupElement) resource).getElements().add(resourceSingleElement2.
                         setName(calcFieldStringName).
                         setType(JAVA_LANG_STRING).
-                        setExpression(new ClientExpressionContainer().setExpressionObject(function)));
+                        setExpression(new ClientExpressionContainer().setObject(function)));
             }
         }
         // add calculated fields to presentation
@@ -121,7 +125,7 @@ public class SchemaManipulator {
         joinsElements.add(new ResourceSingleElement().
                 setName(calcFieldName).
                 setType(JAVA_LANG_STRING).
-                setExpression(new ClientExpressionContainer().setExpressionObject(function)));
+                setExpression(new ClientExpressionContainer().setObject(function)));
 
         // add calculated fields to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
@@ -150,7 +154,7 @@ public class SchemaManipulator {
         constantElements.add(new ResourceSingleElement().
                 setName(constantField).
                 setType(JAVA_LANG_INTEGER).
-                setExpression(new ClientExpressionContainer().setExpressionString(value.toString())));
+                setExpression(new ClientExpressionContainer().setString(value.toString())));
 
         constantsResourceGroupElement.setElements(constantElements);
         resources.add(1, constantsResourceGroupElement);
@@ -191,7 +195,7 @@ public class SchemaManipulator {
                         addOperand(new ClientString("USA"));
                 // and expression object as expression for new resource single element
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
-                        setExpressionObject(clientEquals));
+                        setObject(clientEquals));
             }
             if (resource.getName().equals(FULL_TABLE_NAME_2_PRODUCT)) {
 
@@ -209,7 +213,7 @@ public class SchemaManipulator {
 
                 // set expression object as expression
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
-                        setExpressionObject(clientAnd));
+                        setObject(clientAnd));
             }
         }
     }
@@ -218,7 +222,7 @@ public class SchemaManipulator {
         JoinResourceGroupElement joinGroup = (JoinResourceGroupElement) schema.getResources().get(1);
         // add cross table filter to join group
         joinGroup.setFilterExpression(new ClientExpressionContainer().
-                setExpressionString("not contains(public_product.brand_name, public_customer.fname)"));
+                setString("not contains(public_product.brand_name, public_customer.fname)"));
     }
 
     public void addTwoFieldsFilter(Schema schema) {
@@ -232,7 +236,7 @@ public class SchemaManipulator {
 
             if (resource.getName().equals(FULL_TABLE_NAME_1_CUSTOMER)) {
                 ((ResourceGroupElement) resource).setFilterExpression(new ClientExpressionContainer().
-                        setExpressionString("contains(fullname, fname)"));
+                        setString("contains(fullname, fname)"));
             }
         }
     }
@@ -267,9 +271,9 @@ public class SchemaManipulator {
                 setLeft(queryElementName).
                 setRight(FULL_TABLE_NAME_1_CUSTOMER).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_customer.customer_id == TestQueryCustomer.customer_id")).
+                        setString("public_customer.customer_id == TestQueryCustomer.customer_id")).
                 setWeight(1).
-                setType(Join.JoinType.inner));
+                setType(JOIN_TYPE_INNER));
 
         // ann new query resources to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
@@ -316,9 +320,9 @@ public class SchemaManipulator {
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(copyElement.getName()).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer1.customer_id")).
+                        setString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer1.customer_id")).
                 setWeight(1).
-                setType(Join.JoinType.inner));
+                setType(JOIN_TYPE_INNER));
 
         // Add copied table to presentation
         List<PresentationElement> presentations = schema.getPresentation().get(0).getElements();
@@ -385,16 +389,16 @@ public class SchemaManipulator {
                 setLeft(table1Customer1Name).
                 setRight(table0AggC14Name).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_agg_c_14_sales_fact_1997.customer_id == public_customer1.customer_id")).
+                        setString("public_agg_c_14_sales_fact_1997.customer_id == public_customer1.customer_id")).
                 setWeight(1).
-                setType(Join.JoinType.rightOuter));
+                setType(JOIN_TYPE_RIGHT_OUTER));
         joinsList0.add(new Join().
                 setLeft(table1Customer1Name).
                 setRight(table3CustomerSalesName).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_customer_sales.customer_id == public_customer1.customer_id")).
+                        setString("public_customer_sales.customer_id == public_customer1.customer_id")).
                 setWeight(1).
-                setType(Join.JoinType.inner));
+                setType(JOIN_TYPE_INNER));
         List<SchemaElement> referenceElements0 = new LinkedList<SchemaElement>();
         referenceElements0.add(new ReferenceElement().
                 setName(table0AggC14Name).
@@ -414,9 +418,9 @@ public class SchemaManipulator {
                 setLeft(table4CustomerSales1Name).
                 setRight(table2Customer11Name).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_customer11.customer_id == public_customer_sales1.customer_id")).
+                        setString("public_customer11.customer_id == public_customer_sales1.customer_id")).
                 setWeight(1).
-                setType(Join.JoinType.fullOuter));
+                setType(JOIN_TYPE_FULL_OUTER));
         List<SchemaElement> referenceElements1 = new LinkedList<SchemaElement>();
         referenceElements1.add(new ReferenceElement().
                 setName(table4CustomerSales1Name).

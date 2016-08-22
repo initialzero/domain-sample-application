@@ -53,6 +53,7 @@ import static com.jaspersoft.jasperserver.dsa.domain.SchemaUtil.getPresentationS
  */
 public class InitDomainHelper {
 
+    public static final String JOIN_TYPE_INNER = "inner";
     private static Schema schema;
     public static ResourceGroupElement table0_agg_11_01;
     public static ResourceGroupElement table1_customer;
@@ -112,15 +113,15 @@ public class InitDomainHelper {
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(FULL_TABLE_NAME_1_CUSTOMER).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id")).
+                        setString("public_agg_ll_01_sales_fact_1997.customer_id == public_customer.customer_id")).
                 setWeight(1)
-                .setType(Join.JoinType.inner));
+                .setType(JOIN_TYPE_INNER));
         joins.add(new Join().
                 setLeft(FULL_TABLE_NAME_0_AGG_11_01).
                 setRight(FULL_TABLE_NAME_2_PRODUCT).
                 setExpression(new ClientExpressionContainer().
-                        setExpressionString("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id")).
-                setWeight(1).setType(Join.JoinType.inner));
+                        setString("public_agg_ll_01_sales_fact_1997.product_id == public_product.product_id")).
+                setWeight(1).setType(JOIN_TYPE_INNER));
 
         // add joins to JoinGroup section of domain schema
         JoinInfo joinInfo = new JoinInfo().
