@@ -32,7 +32,6 @@ public class DomainSamplesUtil {
 
     public void initSession() {
         appLogger.info("Authentication on JasperReportsServer " + configuration.getUri());
-
         // init JavaRestClient and log in on the JasperReportsServer
         RestClientConfiguration restClientConfiguration = RestClientConfiguration.loadConfiguration(configuration.getProperties());
         try {
