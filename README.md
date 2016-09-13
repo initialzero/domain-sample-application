@@ -1,56 +1,62 @@
 # Sample application for demonstration Domain API(in development)
-===========================================================
 
-The application demonstrates functionality of doamin designer of JasperReports servers. Also it shows how to use schema of domain.
-New Domain Designer, New Domain Schema and Domain API are in development at the present time and aren't supported by Jasperperreports Server 6.3.0. This funtionality will be included in subsequent releases.
+===========================================================
 
 Table of Contents
 ------------------
-1. [Running application](#running-application).
-2. [Configuration](#configuration).
+1. [Description](#description)
+2. [Building the Application](#building-the-application)
+3. [Running the Application](#running-the-application)
+4. [Configuration](#configuration)
 
-Running application
--------------
-To start working with the test case you should have installed `Oracle/Sun Java JDK  1.6 or 1.7`, `Apache Maven 3.x` and `Git` (or anther tool that allow you clone the project from GitHub). Follow next steps to build application:
+
+Description
+-----------
+
+The purpose of sample application is demonstration of functionality of New Domain Designer API of JasperReports server. 
+New Domain Designer, New Domain Schema and Domain API are in development at the present time and aren't supported by Jasperperreports Server 6.3.0. This funtionality will be included in subsequent releases.
+
+Building the Application
+------------------------
+
+Sofware requirements:
+- Oracle/Sun Java JDK  1.6 or 1.7
+- Apache Maven 3.x
+- Git (or anther tool that allowS you clone the project from GitHub)
+
+To build the sample app:
 1. Clone the repository to your local computer using Git command: 
-```java
+```bash
 git clone https://github.com/Jaspersoft/domain-sample-application.git
 ```
-or download source code directly from the main page of repository `https://github.com/Jaspersoft/domain-sample-application`
-2. Run biuld of application form command line with goal:
-```java
+Or download the source code directly from the main page of repository: `https://github.com/Jaspersoft/domain-sample-application`
+
+2. If you use command line you should switch to `your_path/domain-sample-application` directory:
+```bash
+cd ../domain-sample-application
+```
+
+3. In the sample application project, build with the Maven `package` target:
+```bash
 mvn package
 ```
-Please notice, as the application is only for internal use you need enabled VPN connection.
 
-You can find executable jar file in `target` folder.
-To run application enter in command line:
-```java
-java -jar domain-sample-application-1.0.jar
+Running the Application
+-----------------------
+
+Maven creates the executable jar file in the `target` folder. To run the sample application, use the following commands:
+
+```bash
+cd target
+java -jar domain-sample-application-1.1.jar
 ```
+
 Configuration
 -------------
-To use the application you should specify  set of parameters such as:
-- `uri` -  URI of JasperReportsServer;
-- `username` and `password` - login and password of your account on server;
-- `baseFolder` - base directory, where samples will be located.
 
-Domain sample application allow you set this parameters from command line or enter path to `properties` file.
+Semple application must be properly configured in two ways: 
 
-In case of manual configuration the application suggest to enter each parameter separate, here is example of work the application in this case:
-```
-[INFO] Initialization of application
-[INFO] Choose way of configuration (file or manual) [f/m]: m
-[INFO] The application is configured manually
-[INFO] Enter url: http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
-[INFO] Enter username: superuser
-[INFO] Enter password: superuser
-[INFO] Enter baseFolder: /public/demo
-[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
-
-...
-```
-You can specify init parameters in `property` file and set path to this file for application:
+1. from `properties` file. To use this way of configuration choose `f` for `file` when prompted by the application and enter the path to your local file. For example:
 ```
 [INFO] Initialization of application
 [INFO] Choose way of configuration (file or manual) [f/m]: f
@@ -60,15 +66,31 @@ You can specify init parameters in `property` file and set path to this file for
 
 [INFO] The application is configured from D:\config.properties file
 [INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
-
-...
-
 ```
- Here is example of `config.properties` file:
+
+Previously create a Java properties file with the following properties:
  ```
  url=http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
  username=superuser
  password=superuser
  baseFolder=/public/DomainDemo
-
  ```
+ Where:
+- `url` - URL of JasperReports Server
+- `username` and `password` - login and password of your account on JasperReports Server
+- `baseFolder` - base directory, where samples will be located.`
+
+
+2. configuration of applicatopn interactively on the command line. 
+To enter the parameters interactively, choose `m` for `manual` when prompted for the configuration, then type in each parameter. For example:
+
+```
+[INFO] Initialization of application
+[INFO] Choose way of configuration (file or manual) [f/m]: m
+[INFO] The application is configured manually
+[INFO] Enter url: http://build-master.jaspersoft.com:9080/jrs-pro-feature-domain-designer-schema-conversion
+[INFO] Enter username: superuser
+[INFO] Enter password: superuser
+[INFO] Enter baseFolder: /public/demo
+[INFO] Authentication on JasperReportsServer http://build-master.jaspersoft.com:5580/jrs-pro-feature-full-domain-api
+```
