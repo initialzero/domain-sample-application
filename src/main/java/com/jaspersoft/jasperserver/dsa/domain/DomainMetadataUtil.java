@@ -2,7 +2,7 @@ package com.jaspersoft.jasperserver.dsa.domain;
 
 import com.jaspersoft.jasperserver.dsa.common.AppConfiguration;
 import com.jaspersoft.jasperserver.dto.resources.ClientSemanticLayerDataSource;
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
+import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
 import org.apache.log4j.Logger;
 
@@ -24,13 +24,13 @@ public class DomainMetadataUtil {
     }
 
 
-    public DataIslandsContainer fetchMetadata(String domainUri) {
+    public PresentationGroupElement fetchMetadata(String domainUri) {
         appLogger.info("Fetch metadata for " + domainUri);
-        DataIslandsContainer metadata = null;
+        PresentationGroupElement metadata = null;
         ClientSemanticLayerDataSource domain = new ClientSemanticLayerDataSource().setUri(domainUri);
 
         // send metadata request to server
-        OperationResult<DataIslandsContainer> operationResult = configuration.getSession().
+        OperationResult<PresentationGroupElement> operationResult = configuration.getSession().
                 dataDiscoveryService().
                 domainContext().
                 fetchMetadataByContext(domain);

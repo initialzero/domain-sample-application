@@ -10,7 +10,7 @@ import com.jaspersoft.jasperserver.dto.adhoc.query.select.ClientSelect;
 import com.jaspersoft.jasperserver.dto.executions.ClientFlatQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiLevelQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
+import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
@@ -37,18 +37,18 @@ public class FlatQueryExecutor {
         this.configuration = configuration;
     }
 
-    public DataIslandsContainer retrieveMetadata(String domainUri) {
+    public PresentationGroupElement retrieveMetadata(String domainUri) {
         this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
-        DataIslandsContainer dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
+        PresentationGroupElement dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
         return dataIslandsContainer;
     }
 
-    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+    public ClientQuery buildQuery(PresentationGroupElement metadata) {
         appLogger.info("Build flat query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
-        List<PresentationSingleElement> singleElements = QueryBuilderUtil.findSingleElements(metadata.getDataIslands().get(0), 3);
+        List<PresentationSingleElement> singleElements = QueryBuilderUtil.findSingleElements(metadata.getElements().get(0), 3);
 
         // use found elements for building flat query
         List<ClientQueryField> queryFields = new LinkedList<ClientQueryField>();
