@@ -10,7 +10,7 @@ import com.jaspersoft.jasperserver.dto.adhoc.query.field.ClientQueryLevel;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryExecution;
 import com.jaspersoft.jasperserver.dto.executions.ClientMultiAxesQueryResultData;
 import com.jaspersoft.jasperserver.dto.executions.ClientQueryParams;
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
+import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
 import com.jaspersoft.jasperserver.jaxrs.client.apiadapters.adhoc.queryexecution.QueryExecutionAdapter;
 import com.jaspersoft.jasperserver.jaxrs.client.core.operationresult.OperationResult;
@@ -42,14 +42,14 @@ public class MultiAxesQueryExecutor {
         this.configuration = configuration;
     }
 
-    public DataIslandsContainer retrieveMetadata(String domainUri) {
+    public PresentationGroupElement retrieveMetadata(String domainUri) {
         this.domainUri = domainUri;
         DomainMetadataUtil domainMetadataUtil = new DomainMetadataUtil(configuration);
-        DataIslandsContainer dataIslandsContainer = domainMetadataUtil.fetchMetadata(domainUri);
-        return dataIslandsContainer;
+        PresentationGroupElement presentationGroupElement = domainMetadataUtil.fetchMetadata(domainUri);
+        return presentationGroupElement;
     }
 
-    public ClientQuery buildQuery(DataIslandsContainer metadata) {
+    public ClientQuery buildQuery(PresentationGroupElement metadata) {
         appLogger.info("Build multi axes query for domain " + domainUri);
 
         // find elements for query in retrieved metadata
@@ -61,7 +61,7 @@ public class MultiAxesQueryExecutor {
                 setName(presentationSingleElements.get(0).getHierarchicalName()).
                 setType(presentationSingleElements.get(0).getType());
 
-        ClientQueryLevel queryLevel = (ClientQueryLevel) new ClientQueryLevel().setId("Id1").
+        ClientQueryLevel queryLevel = new ClientQueryLevel().setId("Id1").
                 setDataSourceField(new ClientDataSourceField().
                         setName(presentationSingleElements.get(1).getHierarchicalName()).
                         setType(presentationSingleElements.get(1).getType()));
@@ -94,7 +94,7 @@ public class MultiAxesQueryExecutor {
             }
         }
 
-        // send request to server ade get result dataset
+        // send request to server and get result dataset
         OperationResult<ClientMultiAxesQueryResultData> operationResult = queryExecutionAdapter.
                 execute(queryExecution);
         if (operationResult.getResponseStatus() == 200) {

@@ -9,7 +9,7 @@ import com.jaspersoft.jasperserver.dsa.querexecution.MultiAxesQueryExecutor;
 import com.jaspersoft.jasperserver.dsa.querexecution.MultiLevelQueryExecutor;
 import com.jaspersoft.jasperserver.dsa.querexecution.ProvidedQueryExecutor;
 import com.jaspersoft.jasperserver.dto.adhoc.query.ClientQuery;
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
+import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import java.io.InputStream;
 import org.apache.log4j.Logger;
 
@@ -36,7 +36,7 @@ public class Application {
         AppConfiguration configuration = strategy.initConfiguration();
         // Initialization server session
         configuration.initSession();
-        DataIslandsContainer domainMetadata;
+        PresentationGroupElement domainMetadata;
 
         //Execute provided query and save result dataset to file
         ProvidedQueryExecutor providedQueryExecutor = new ProvidedQueryExecutor(configuration);

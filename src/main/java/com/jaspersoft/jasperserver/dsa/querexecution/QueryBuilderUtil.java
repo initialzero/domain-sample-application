@@ -1,6 +1,5 @@
 package com.jaspersoft.jasperserver.dsa.querexecution;
 
-import com.jaspersoft.jasperserver.dto.resources.domain.DataIslandsContainer;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationGroupElement;
 import com.jaspersoft.jasperserver.dto.resources.domain.PresentationSingleElement;
@@ -40,15 +39,15 @@ public class QueryBuilderUtil {
     }
 
     // method finds one single element in fetched metadata
-    public static PresentationSingleElement extractPresentationSingleElement(DataIslandsContainer container, String type) {
+    public static PresentationSingleElement extractPresentationSingleElement(PresentationGroupElement container, String type) {
         return extractPresentationSingleElements(container, type, 1).get(0);
     }
 
     // method finds specified number of single elements fetched metadata
-    public static List<PresentationSingleElement> extractPresentationSingleElements(DataIslandsContainer container, String type, int num) {
-        List<PresentationGroupElement> dataIslands = container.getDataIslands();
+    public static List<PresentationSingleElement> extractPresentationSingleElements(PresentationGroupElement container, String type, int num) {
+        List<PresentationElement> dataIslands = container.getElements();
         List<PresentationSingleElement> singleElements = new ArrayList<PresentationSingleElement>(num);
-        for (PresentationGroupElement dataIsland : dataIslands) {
+        for (PresentationElement dataIsland : dataIslands) {
             List<PresentationSingleElement> singleElementsByType = findSingleElementsByType(dataIsland, type, num);
             if (singleElementsByType != null) {
                 singleElements.addAll(singleElementsByType);
